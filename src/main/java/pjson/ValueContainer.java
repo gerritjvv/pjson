@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Object container that allows parsed values to be appended to the contains.
+ * Two types of containers are: Vector/Array(s) and Object/Map(s).
  */
 public abstract class ValueContainer {
 
@@ -13,16 +15,16 @@ public abstract class ValueContainer {
     public abstract Object getValue();
 
     public static final class ObjectContainer extends ValueContainer{
-        //private ITransientMap m = PersistentArrayMap.EMPTY.asTransient();
-        private IPersistentMap m = PersistentArrayMap.EMPTY;
-        //private List<Object> arr = new ArrayList<Object>();
+
+        private final List<Object> arr = new ArrayList<Object>();
 
         private Object k = null;
 
         @Override
         public final void append(Object val) {
             if(k != null) {
-                m = m.assoc(k, val);
+                arr.add(k);
+                arr.add(val);
                 k = null;
             }else
                 k = val;
@@ -30,7 +32,7 @@ public abstract class ValueContainer {
 
         @Override
         public final Object getValue(){
-            return m;
+            return new PersistentArrayMap(arr.toArray());
         }
 
     }

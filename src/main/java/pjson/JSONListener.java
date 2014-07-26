@@ -1,6 +1,7 @@
 package pjson;
 
 /**
+ * Receive events from the PJSON parse method
  */
 public abstract class JSONListener {
 

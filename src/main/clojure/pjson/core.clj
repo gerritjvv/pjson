@@ -45,5 +45,18 @@ Found 1 outliers in 60 samples (1.6667 %)
  Variance from outliers : 23.7872 % Variance is moderately inflated by outliers
   "
 
+  ;With ArrayList then new PersistentArrayMap(list.toArray())
+  "
+  Evaluation count : 19772100 in 60 samples of 329535 calls.
+             Execution time mean : 3.057527 µs
+    Execution time std-deviation : 31.518001 ns
+   Execution time lower quantile : 3.030034 µs ( 2.5%)
+   Execution time upper quantile : 3.163325 µs (97.5%)
+                   Overhead used : 1.553263 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 3 (5.0000 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+  "
 
   )

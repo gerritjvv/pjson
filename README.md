@@ -22,12 +22,16 @@ The parser's focus is on speed and not validating json.
 Using criterium:
 
 ```
-Evaluation count : 13056660 in 60 samples of 217611 calls.
-             Execution time mean : 4.542464 µs
-    Execution time std-deviation : 166.410236 ns
-   Execution time lower quantile : 4.347147 µs ( 2.5%)
-   Execution time upper quantile : 4.799114 µs (97.5%)
-                   Overhead used : 1.792457 ns
+Evaluation count : 19772100 in 60 samples of 329535 calls.
+             Execution time mean : 3.057527 µs
+    Execution time std-deviation : 31.518001 ns
+   Execution time lower quantile : 3.030034 µs ( 2.5%)
+   Execution time upper quantile : 3.163325 µs (97.5%)
+                   Overhead used : 1.553263 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 3 (5.0000 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 ```
 ## License
 

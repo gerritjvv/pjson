@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Return the JSON data as: Objects == Map, Array == Vector, keys and values as String.
  */
 public final class DefaultListener extends JSONListener{
 

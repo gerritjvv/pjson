@@ -1,6 +1,9 @@
 package pjson;
 
 /**
+ * Fast simple json parser.<br/>
+ * Note that numbers are not converted to any Java number and are returned as java Strings.<br/>
+ * This improves performs but has the side effect that you need to parse any number data before treating it as an actual number.
  */
 public final class PJSON {
 
@@ -15,6 +18,13 @@ public final class PJSON {
 
     private static final byte STR_COL = (byte)':';
 
+    /**
+     * Parses the byte array for json data.
+     * @param bts byte array
+     * @param start start offset
+     * @param len number of bytes to parse
+     * @param events JSONListener, all events will be sent to this instance.
+     */
     public static final void parse(final byte[] bts, final int start, final int len, final JSONListener events){
         final int btsLen = len;
         boolean inString = false;
@@ -81,13 +91,39 @@ public final class PJSON {
         }
     }
 
+    /**
+     * Returns a String from a number.
+     * @param events
+     * @param bts
+     * @param i
+     * @param len
+     */
     private static final void parseNumber(JSONListener events, byte[] bts, int i, int len){
         events.string(new String(bts, i, len));
     }
 
+    /**
+     * Parse the whole byte array bts.
+     * @param bts
+     * @return Object Map or Collection.
+     */
     public static final Object defaultParse(final byte[] bts){
         final DefaultListener list = new DefaultListener();
         parse(bts, 0, bts.length, list);
         return list.getValue();
     }
+
+    /**
+     * Parse the bts byte array from offset start and to < len.
+     * @param bts
+     * @param start
+     * @param len
+     * @return Object Map or Collection
+     */
+    public static final Object defaulParse(final byte[] bts, final int start, final int len){
+        final DefaultListener list = new DefaultListener();
+        parse(bts, start, len, list);
+        return list.getValue();
+    }
+
 }
