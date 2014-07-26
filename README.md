@@ -2,6 +2,10 @@
 
 Fast clojure json parser
 
+Note: this is still a work in progress.
+
+The parser's focus is on speed and not validating json.
+
 ## Usage
 
 ```clojure
