@@ -4,6 +4,10 @@
   (:import [pjson PJSON])
   (:gen-class))
 
+(defn bts->json
+  ([^"[B" bts]
+   (PJSON/defaultParse msg-bts)))
+
 (defn do-parse []
   (PJSON/defaultParse msg-bts))
 
