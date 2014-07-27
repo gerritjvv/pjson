@@ -8,6 +8,9 @@ import java.nio.charset.Charset;
  */
 public final class StringUtil {
 
+    /**
+     * Uses the ISO-8859-1 charset
+     */
     public static final Charset DEFAULT_CHAR_SET = Charset.forName("iso-8859-1");
 
     public static final String toString(Charset charset, final byte[] bts, final int start, final int len){

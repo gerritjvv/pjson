@@ -7,12 +7,17 @@ The parser's focus is on speed and not validating json.
 [![Clojars Project](http://clojars.org/pjson/latest-version.svg)](http://clojars.org/pjson)
 
 
-## Speed and JVM version
+## Speed, Charsets and JVM version
 
 Although the code compiles with JRE 1.5 compatibility your encouraged to run with at least 1.7 b53 or upwards.
 This is because in 1.7 b53 major performance improvements have been done on String creations, which is central to this library.
 
-see: https://blogs.oracle.com/xuemingshen/entry/faster_new_string_bytes_cs
+see: 
+
+https://blogs.oracle.com/xuemingshen/entry/faster_new_string_bytes_cs
+http://java-performance.info/charset-encoding-decoding-java-78/
+
+Always use the DEFAULT_CHARSET (from this library) which use the "ISO-8859-1" encoding.
 
 ## Usage
 
@@ -48,24 +53,24 @@ System.out.println(obj);
 
 ## Benchmarks
 
-Using criterium and JVM 1.7 b60.
+Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"
 
 ```
 Each run calls the parse function 100 000 times.
 
+Checking outlier significance
 Evaluation count : 240 in 60 samples of 4 calls.
-             Execution time mean : 321.539024 ms
-    Execution time std-deviation : 2.396782 ms
-   Execution time lower quantile : 317.474249 ms ( 2.5%)
-   Execution time upper quantile : 326.185749 ms (97.5%)
-                   Overhead used : 1.482882 ns
+             Execution time mean : 290.280219 ms
+    Execution time std-deviation : 5.896978 ms
+   Execution time lower quantile : 283.481998 ms ( 2.5%)
+   Execution time upper quantile : 304.616505 ms (97.5%)
+                   Overhead used : 1.788439 ns
 
 Found 3 outliers in 60 samples (5.0000 %)
-	low-severe	 2 (3.3333 %)
-	low-mild	 1 (1.6667 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-
-Single execution: 0,00321 ms (321/100000)
+	low-severe	 3 (5.0000 %)
+Variance from outliers : 9.3690 % Variance is slightly inflated by outliers
+ 
+Single execution: 0,0029 ms (290/100000)
 
 ```
 ## License
