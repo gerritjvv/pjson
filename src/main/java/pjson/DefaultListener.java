@@ -17,13 +17,13 @@ public final class DefaultListener extends JSONListener{
     }
 
     @Override
-    public final void number(int val) {
-        current.append(new Integer(val));
+    public final void number(Integer val) {
+        current.append(val);
     }
 
     @Override
-    public final void number(long val) {
-        current.append(new Long(val));
+    public final void number(Long val) {
+        current.append(val);
     }
 
 

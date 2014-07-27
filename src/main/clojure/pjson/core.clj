@@ -6,14 +6,24 @@
 
 (defn bts->json
   ([^"[B" bts]
-   (PJSON/defaultParse msg-bts)))
+   (bts->json bts true))
+  ([^"[B" bts ^Boolean parseNumbers]
+   (PJSON/defaultParse msg-bts parseNumbers)))
 
 (defn do-parse []
   (PJSON/defaultParse msg-bts))
 
 
+(defn do-parse2 []
+  (dotimes [i 100000]
+    (PJSON/defaultParse msg-bts true)))
+
+
 (defn bench []
   (crit/with-progress-reporting  (crit/bench (do-parse))))
+
+(defn bench2 []
+  (crit/with-progress-reporting  (crit/bench (do-parse2))))
 
 (defn -main [& args]
   (let [n (get args 0)]
@@ -57,6 +67,18 @@ Found 1 outliers in 60 samples (1.6667 %)
 Found 3 outliers in 60 samples (5.0000 %)
 	low-severe	 3 (5.0000 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+  "
+
+  ;;;with 100 000 dotimes
+  "
+  new String:
+  Execution time mean : 350.024593 ms
+
+  char[] array.
+  Execution time mean : 337.154454 ms
+
+  mix: Strings use new String, numbers use char[] array
+  Execution time mean : 321.539024 ms
   "
 
   )

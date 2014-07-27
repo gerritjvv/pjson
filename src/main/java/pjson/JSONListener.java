@@ -6,8 +6,8 @@ package pjson;
 public abstract class JSONListener {
 
     public abstract void string(String str);
-    public abstract void number(int i);
-    public abstract void number(long i);
+    public abstract void number(Integer i);
+    public abstract void number(Long i);
 
     public abstract void objectStart();
     public abstract void objectEnd();
