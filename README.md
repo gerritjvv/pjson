@@ -17,7 +17,7 @@ The parser's focus is on speed and not validating json.
 
 ```
 
-## Bencmarks
+## Benchmarks
 
 Using criterium:
 
