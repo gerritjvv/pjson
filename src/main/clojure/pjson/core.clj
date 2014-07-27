@@ -1,22 +1,31 @@
 (ns pjson.core
   (:require [pjson.data :refer [msg-bts]]
             [criterium.core :as crit])
-  (:import [pjson PJSON])
+  (:import [pjson PJSON StringUtil]
+           (java.nio.charset Charset))
   (:gen-class))
+
+(defonce DEFAULT_CHARSET (StringUtil/DEFAULT_CHAR_SET))
+
+(defn get-charset [n]
+  (Charset/forName n))
 
 (defn bts->json
   ([^"[B" bts]
-   (bts->json bts true))
-  ([^"[B" bts ^Boolean parseNumbers]
-   (PJSON/defaultParse msg-bts parseNumbers)))
+   (bts->json DEFAULT_CHARSET bts))
+  ([^Charset charset ^"[B" bts]
+   (PJSON/defaultParse charset bts))
+  ([^Charset charset ^"[B" bts ^Long from ^Long len]
+   ;defaultParse(final Charset charset, final byte[] bts, final int start, final int len)
+   (PJSON/defaultParse charset bts (int from) (int len))))
 
 (defn do-parse []
-  (PJSON/defaultParse msg-bts))
+  (bts->json msg-bts))
 
 
 (defn do-parse2 []
   (dotimes [i 100000]
-    (PJSON/defaultParse msg-bts true)))
+    (bts->json msg-bts)))
 
 
 (defn bench []
