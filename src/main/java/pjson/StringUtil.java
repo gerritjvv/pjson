@@ -190,7 +190,7 @@ public final class StringUtil {
 
     public static String noCopyStringFromCharsNoCheck(final char[] chars, int start, int len) {
         char[] newChars = new char[len];
-        System.arraycopy(chars, start, newChars, 0, len);
+        CharArrayTool.copy(chars, start, newChars, 0, len);
         return STRING_IMPLEMENTATION.noCopyStringFromChars(newChars);
     }
 

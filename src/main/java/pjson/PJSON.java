@@ -11,21 +11,22 @@ import java.util.Arrays;
 public final class PJSON {
 
 
-    private static final char OBJECT_START = (byte)'{';
-    private static final char OBJECT_END = (byte)'}';
-    private static final char ARR_START = (byte)'[';
-    private static final char ARR_END = (byte)']';
-    private static final char STR_MARK = (byte)'\"';
-    private static final char STR_COMMA = (byte)',';
-    private static final char STR_ESCAPE = (byte)'\\';
+    private static final char OBJECT_START = '{';
+    private static final char OBJECT_END = '}';
+    private static final char ARR_START = '[';
+    private static final char ARR_END = ']';
+    private static final char STR_MARK = '\"';
+    private static final char STR_COMMA = ',';
+    private static final char STR_ESCAPE = '\\';
+    private static final char STR_SPACE = ' ';
 
-    private static final char STR_DOT = (byte)'.';
-    private static final char STR_T = (byte)'T';
-    private static final char STR_F = (byte)'F';
-    private static final char STR_t = (byte)'t';
-    private static final char STR_f = (byte)'f';
+    private static final char STR_DOT = '.';
+    private static final char STR_T = 'T';
+    private static final char STR_F = 'F';
+    private static final char STR_t = 't';
+    private static final char STR_f = 'f';
 
-    private static final char STR_COL = (byte)':';
+    private static final char STR_COL = ':';
 
     public static final void parse(final Charset charset, final byte[] bts, final int start, final int len, final JSONListener events){
         final char chars[] = StringUtil.toCharArrayFromBytes(bts, charset, start, len);
@@ -47,10 +48,16 @@ public final class PJSON {
         boolean inNonStrObj = false;
         boolean seenDot = false;
         byte seenBool = -1;
+        int lastNonSpace = -1;
 
         for(int i = start; i < btsLen; i++){
             prevByte = bt;
-            bt = bts[i];
+
+            bt = CharArrayTool.getChar(bts, i);
+
+            if(bt != STR_SPACE)
+                lastNonSpace = i;
+
             switch (bt){
                 case STR_MARK:
                     seenDot = false;
@@ -69,12 +76,14 @@ public final class PJSON {
                 case STR_COL:
                     if(!inString){
                         inNonStrObj = true;
-                        strStartIndex = i+1;
+                        strStartIndex = skipWhiteSpace(bts, i, btsLen);
                     }
                     break;
                 case STR_COMMA:
                     if(inNonStrObj) {
-                        parseNumber(events, bts, strStartIndex, i - strStartIndex, seenDot, seenBool);
+                        final int diff = i - lastNonSpace;
+                        if(diff > 1)
+                            parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
                         inNonStrObj = seenDot = false;
                         seenBool = -1;
                     }
@@ -89,7 +98,7 @@ public final class PJSON {
                 case OBJECT_END:
                     if(!inString){
                         if(inNonStrObj){
-                            final int diff = i - strStartIndex;
+                            final int diff = i - lastNonSpace;
                             if(diff > 1)
                                 parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
                             inNonStrObj = seenDot = false;
@@ -112,7 +121,7 @@ public final class PJSON {
                 case ARR_END:
                     if(!inString){
                         if(inNonStrObj){
-                            final int diff = i - strStartIndex;
+                            final int diff = i - lastNonSpace;
                             if(diff > 1)
                                 parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
                             inNonStrObj = seenDot = false;
@@ -146,6 +155,18 @@ public final class PJSON {
         }
     }
 
+    private static final int skipWhiteSpace(char[] chars, int offset, int btsLen){
+        //skip white space
+        char bt;
+        for(; offset < btsLen;){
+            offset++;
+            bt = CharArrayTool.getChar(chars, offset);
+            if(bt != STR_SPACE)
+                break;
+        }
+        return offset;
+    }
+
     /**
      * Returns a String from a number.
      * @param events
@@ -155,7 +176,7 @@ public final class PJSON {
      */
     private static final void parseNumber(JSONListener events, char[] bts, int i, int len, boolean seenDot, byte seenBool){
         final String str = StringUtil.fastToString(bts, i, len);
-
+        System.out.println("String: " + str + " count: " + str.length());
         if(seenDot)
             events.number(Double.valueOf(str));
         else if(seenBool == STR_T)
