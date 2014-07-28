@@ -11,45 +11,51 @@ import java.util.Arrays;
 public final class PJSON {
 
 
-    private static final byte OBJECT_START = (byte)'{';
-    private static final byte OBJECT_END = (byte)'}';
-    private static final byte ARR_START = (byte)'[';
-    private static final byte ARR_END = (byte)']';
-    private static final byte STR_MARK = (byte)'\"';
-    private static final byte STR_COMMA = (byte)',';
-    private static final byte STR_ESCAPE = (byte)'\\';
+    private static final char OBJECT_START = (byte)'{';
+    private static final char OBJECT_END = (byte)'}';
+    private static final char ARR_START = (byte)'[';
+    private static final char ARR_END = (byte)']';
+    private static final char STR_MARK = (byte)'\"';
+    private static final char STR_COMMA = (byte)',';
+    private static final char STR_ESCAPE = (byte)'\\';
 
-    private static final byte STR_COL = (byte)':';
+    private static final char STR_DOT = (byte)'.';
+    private static final char STR_T = (byte)'T';
+    private static final char STR_F = (byte)'F';
+    private static final char STR_t = (byte)'t';
+    private static final char STR_f = (byte)'f';
 
+    private static final char STR_COL = (byte)':';
+
+    public static final void parse(final Charset charset, final byte[] bts, final int start, final int len, final JSONListener events){
+        final char chars[] = StringUtil.toCharArrayFromBytes(bts, charset, start, len);
+        parse(chars, 0, chars.length, events);
+    }
     /**
      * Parses the byte array for json data.
-     * @param charset CharSet to use for string decoding
      * @param bts byte array
      * @param start start offset
      * @param len number of bytes to parse
      * @param events JSONListener, all events will be sent to this instance.
      */
-    public static final void parse(final Charset charset, final byte[] bts, final int start, final int len, final JSONListener events){
+    public static final void parse(final char[] bts, final int start, final int len, final JSONListener events){
         final int btsLen = start + len;
         boolean inString = false;
         int strStartIndex = 0;
-        byte prevByte = -1;
-        byte bt = -1;
+        char prevByte = '-';
+        char bt = '-';
         boolean inNonStrObj = false;
+        boolean seenDot = false;
+        byte seenBool = -1;
 
         for(int i = start; i < btsLen; i++){
             prevByte = bt;
             bt = bts[i];
             switch (bt){
                 case STR_MARK:
-                    if(prevByte != STR_ESCAPE) {
-                        if (inString) {
-                            events.string(StringUtil.toString(charset, bts, strStartIndex, i - strStartIndex));
-                        } else
-                            strStartIndex = i+1;
+                    seenDot = false;
+                    seenBool = -1;
 
-                        inString ^= true;
-                    }
                     inNonStrObj = false;
                     break;
                 case STR_COL:
@@ -58,38 +64,73 @@ public final class PJSON {
                     break;
                 case STR_COMMA:
                     if(inNonStrObj) {
-                        parseNumber(events, bts, strStartIndex, i - strStartIndex);
-                        inNonStrObj = false;
+                        parseNumber(events, bts, strStartIndex, i - strStartIndex, seenDot, seenBool);
+                        inNonStrObj = seenDot = false;
+                        seenBool = -1;
                     }
                     break;
                 case OBJECT_START:
                     if(!inString)
                      events.objectStart();
+                    strStartIndex = i+1;
+                    seenDot = false;
+                    seenBool = -1;
                     break;
                 case OBJECT_END:
                     if(!inString){
                         if(inNonStrObj){
-                            parseNumber(events, bts, strStartIndex, i - strStartIndex);
-                            inNonStrObj = false;
+                            final int diff = i - strStartIndex;
+                            if(diff > 1)
+                                parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
+                            inNonStrObj = seenDot = false;
+                            seenBool = -1;
                         }
                         events.objectEnd();
                     }
+                    seenDot = false;
+                    seenBool = -1;
+                    strStartIndex=i+1;
                     break;
                 case ARR_START:
                     if(!inString)
                         events.arrStart();
 
+                    seenDot = false;
+                    seenBool = -1;
+                    strStartIndex=i+1;
                     break;
                 case ARR_END:
                     if(!inString){
                         if(inNonStrObj){
-                            parseNumber(events, bts, strStartIndex, i - strStartIndex);
-                            inNonStrObj = false;
+                            final int diff = i - strStartIndex;
+                            if(diff > 1)
+                                parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
+                            inNonStrObj = seenDot = false;
+                            seenBool = -1;
                         }
                         events.arrEnd();
                     }
+                    strStartIndex=i+1;
                     break;
-
+                case STR_DOT:
+                    if(inNonStrObj)
+                        seenDot = true;
+                    break;
+                case STR_F:
+                    seenBool = STR_F;
+                    break;
+                case STR_T:
+                    if(inNonStrObj)
+                        seenBool = STR_T;
+                    break;
+                case STR_f:
+                    if(inNonStrObj)
+                        seenBool = STR_F;
+                    break;
+                case STR_t:
+                    if(inNonStrObj)
+                        seenBool = STR_T;
+                    break;
             }
 
         }
@@ -102,9 +143,16 @@ public final class PJSON {
      * @param i
      * @param len
      */
-    private static final void parseNumber(JSONListener events, byte[] bts, int i, int len){
+    private static final void parseNumber(JSONListener events, char[] bts, int i, int len, boolean seenDot, byte seenBool){
         final String str = StringUtil.fastToString(bts, i, len);
-        if(str.equals("null"))
+
+        if(seenDot)
+            events.number(Double.valueOf(str));
+        else if(seenBool == STR_T)
+            events.number(Boolean.TRUE);
+        else if(seenBool == STR_F)
+            events.number(Boolean.FALSE);
+        else if(str.charAt(0) == 'n')
             events.string("null");
         else if(str.length() < 10)
             events.number(Integer.valueOf(str));

@@ -26,6 +26,15 @@ public final class DefaultListener extends JSONListener{
         current.append(val);
     }
 
+    @Override
+    public final void number(Double val) {
+        current.append(val);
+    }
+
+    @Override
+    public final void number(Boolean val) {
+        current.append(val);
+    }
 
     @Override
     public final void objectStart() {
@@ -56,7 +65,7 @@ public final class DefaultListener extends JSONListener{
     public final void arrEnd() {
         ValueContainer parent = pop();
         if(parent != null) {
-            parent.append(current);
+            parent.append(current.getValue());
             current = parent;
         }
     }

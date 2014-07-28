@@ -13,12 +13,18 @@ public abstract class ValueContainer {
 
     public abstract void append(Object val);
     public abstract Object getValue();
+    public abstract void clear();
 
     public static final class ObjectContainer extends ValueContainer{
 
         private final List<Object> arr = new ArrayList<Object>();
 
         private Object k = null;
+
+        @Override
+        public void clear(){
+            arr.clear();
+        }
 
         @Override
         public final void append(Object val) {
@@ -38,16 +44,21 @@ public abstract class ValueContainer {
     }
 
     public static final class ArrayContainer extends ValueContainer{
-        private ITransientCollection v = PersistentVector.EMPTY.asTransient();
+        private List<Object> v = new ArrayList<Object>();
+
+        @Override
+        public void clear(){
+            v.clear();
+        }
 
         @Override
         public final void append(Object val) {
-            v = v.conj(val);
+            v.add(val);
         }
 
         @Override
         public final Object getValue() {
-            return v.persistent();
+            return LazilyPersistentVector.createOwning(v.toArray());
         }
     }
 

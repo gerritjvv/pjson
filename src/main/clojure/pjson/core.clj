@@ -1,6 +1,4 @@
 (ns pjson.core
-  (:require [pjson.data :refer [msg-bts]]
-            [criterium.core :as crit])
   (:import [pjson PJSON StringUtil]
            (java.nio.charset Charset))
   (:gen-class))
@@ -19,26 +17,6 @@
    ;defaultParse(final Charset charset, final byte[] bts, final int start, final int len)
    (PJSON/defaultParse charset bts (int from) (int len))))
 
-(defn do-parse []
-  (bts->json msg-bts))
-
-
-(defn do-parse2 []
-  (dotimes [i 100000]
-    (bts->json msg-bts)))
-
-
-(defn bench []
-  (crit/with-progress-reporting  (crit/bench (do-parse))))
-
-(defn bench2 []
-  (crit/with-progress-reporting  (crit/bench (do-parse2))))
-
-(defn -main [& args]
-  (let [n (get args 0)]
-    (prn "args: " args)
-    (dotimes [i 10000000]
-      (do-parse))))
 
 (comment
   ;With Transient Map :inline
