@@ -55,12 +55,22 @@ public final class PJSON {
                 case STR_MARK:
                     seenDot = false;
                     seenBool = -1;
+                    if(prevByte != STR_ESCAPE) {
+                        if (inString) {
+                            events.string(StringUtil.toString(bts, strStartIndex, i - strStartIndex));
+                            strStartIndex = -1;
+                        } else
+                            strStartIndex = i+1;
 
+                        inString ^= true;
+                    }
                     inNonStrObj = false;
                     break;
                 case STR_COL:
-                    inNonStrObj = true;
-                    strStartIndex = i+1;
+                    if(!inString){
+                        inNonStrObj = true;
+                        strStartIndex = i+1;
+                    }
                     break;
                 case STR_COMMA:
                     if(inNonStrObj) {
