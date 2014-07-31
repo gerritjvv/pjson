@@ -32,10 +32,10 @@
 
 (comment
   "boon
-   Execution time mean : 1.227923 sec
+   Execution time mean : 1.372680 sec
   "
   "
   pjson
-   Execution time mean : 2.316059 sec
+    Execution time mean : 2.061676 sec,  Execution time mean : 2.416611 sec
   "
   )

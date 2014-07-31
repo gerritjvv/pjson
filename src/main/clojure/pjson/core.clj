@@ -1,4 +1,5 @@
 (ns pjson.core
+
   (:import [pjson PJSON StringUtil]
            (java.nio.charset Charset))
   (:gen-class))
@@ -16,7 +17,6 @@
   ([^Charset charset ^"[B" bts ^Long from ^Long len]
    ;defaultParse(final Charset charset, final byte[] bts, final int start, final int len)
    (PJSON/defaultParse charset bts (int from) (int len))))
-
 
 (comment
   ;With Transient Map :inline

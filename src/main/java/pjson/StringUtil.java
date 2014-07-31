@@ -1,8 +1,9 @@
 package pjson;
 
-import java.nio.charset.Charset;
 import sun.misc.Unsafe;
+
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 
 /**
  * Utility functions for converting bytes to String.
@@ -184,7 +185,7 @@ public final class StringUtil {
 
     public static String noCopyStringFromCharsNoCheck(final char[] chars, int len) {
         char[] newChars = new char[len];
-        System.arraycopy(chars, 0, newChars, 0, len);
+        CharArrayTool.copy(chars, 0, newChars, 0, len);
         return STRING_IMPLEMENTATION.noCopyStringFromChars(newChars);
     }
 
@@ -194,10 +195,17 @@ public final class StringUtil {
         return STRING_IMPLEMENTATION.noCopyStringFromChars(newChars);
     }
 
-
-
     public static String noCopyStringFromCharsNoCheck(final char[] chars) {
         return STRING_IMPLEMENTATION.noCopyStringFromChars(chars);
     }
 
+    public static char[] decode(final byte[] src, final int from, final int len) {
+        final int end = from + len;
+        final char[] dst = new char[len];
+
+        for(int i = from; i < end; i++)
+            dst[i] = (char)(src[i] & 0xff);
+
+        return dst;
+    }
 }

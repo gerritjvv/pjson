@@ -1,7 +1,6 @@
 package pjson;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 /**
  * Fast simple json parser.<br/>
@@ -15,7 +14,7 @@ public final class PJSON {
     private static final char OBJECT_END = '}';
     private static final char ARR_START = '[';
     private static final char ARR_END = ']';
-    private static final char STR_MARK = '\"';
+    private static final int STR_MARK = '\"';
     private static final char STR_COMMA = ',';
     private static final char STR_ESCAPE = '\\';
     private static final char STR_SPACE = ' ';
@@ -29,166 +28,98 @@ public final class PJSON {
     private static final char STR_COL = ':';
 
     public static final void parse(final Charset charset, final byte[] bts, final int start, final int len, final JSONListener events){
-        final char chars[] = StringUtil.toCharArrayFromBytes(bts, charset, start, len);
+        //final char chars[] = StringUtil.decode(bts, start, len);
+
+         final char[] chars = StringUtil.toCharArrayFromBytes(bts, charset, start, len);
         parse(chars, 0, chars.length, events);
     }
     /**
      * Parses the byte array for json data.
      * @param bts byte array
      * @param start start offset
-     * @param len number of bytes to parse
+     * @param end the end index
      * @param events JSONListener, all events will be sent to this instance.
      */
-    public static final void parse(final char[] bts, final int start, final int len, final JSONListener events){
-        final int btsLen = start + len;
+    public static final int parse(final char[] bts, final int start, final int end, final JSONListener events){
+        final int btsLen = end;
         boolean inString = false;
-        int strStartIndex = 0;
-        char prevByte = '-';
-        char bt = '-';
-        boolean inNonStrObj = false;
-        boolean seenDot = false;
-        byte seenBool = -1;
-        int lastNonSpace = -1;
+        char bt;
+        int i;
+        //1.a: raw iteration with CharArrayTool.getchar Execution time mean : 108.188995 ms, 112.338543 ms
+        //1.b: using char array lookup Execution time mean : 111.391841 ms
+        //2.a: overhead of calling object.start and object end 586.818982 ms
+        //2.b: overhead instead of ArrayList stack using ValueContainer parent reference 674.102807 ms, 673.025107 ms
+        //2.c: using stack object array 545.142249 ms
+        //3.a: what is overhead from 2.c when ArrayList.toArray() is not called 519.697907 ms
+        //3.b try own implementation of AssocObjContainer 519.500857 ms, this is only way not to call toArray.
+        //3.c use ArrayList in AssocObjContainer instead of Object[] array. 516.218482 ms
+        //3.d add arrayList full stack 513.968832 ms
 
-        for(int i = start; i < btsLen; i++){
-            prevByte = bt;
+        //Conclusions so far
+        //  Use CharArrayTool for iteration, use AssocObjContainer, use Object[] for stack and grow if full
+
+        //second round: testing base: 516.499957 ms
+        //4.a overhead of case '"' 569.630274
+        //4.b from 4.a with CharArrayTool.endOfString(bts, i+1, end); overhead is 656.135840 ms
+        //4.c before 4.a with 4.b inside of case '{' without case '"' 577.122282 ms
+        //4.d from 4.c with if else rather than switch 398.176798 ms
+
+        //Conclusions so far
+        //for short conditions use if else if rather than switch.
+        //5.a from 4.d add another else '[', else ']' 467.269732 ms
+        //5.b from 4.d add check for '}' inside if(bt == '{') and change outer check '}' for ']' 464.401121 ms
+        //5.c add indexOf ':' 481.102465 ms
+        //5.d add recursive call to parse with 4 elseif clauses in inner for loop 335.352232 ms 355.177432
+        //5.e factor 5.d into a method 371.835232 ms
+        //5.f add indexOf '"' before endOfString 339.316632 ms
+        //conclusion: ??, fast searches lessen the if branches and is faster than multiple branches.
+
+        //6.a add String key creation 399.380198 ms 396.857043 ms
+        //6.b add String value creation 577.415732 ms
+        //6.c add JSONAssociative 535.606182 ms;
+
+        for(i = start; i < btsLen; i++){
 
             bt = CharArrayTool.getChar(bts, i);
+            if(bt == '{'){
+                events.objectStart();
 
-            if(bt != STR_SPACE)
-                lastNonSpace = i;
+                int strStart = CharArrayTool.indexOf(bts, i+1, end, '"') + 1;
+                int idx = CharArrayTool.endOfString(bts, strStart, end);
+                //create string here
+                events.string(StringUtil.fastToString(bts, strStart, idx - strStart));
+                idx = CharArrayTool.indexOf(bts, idx+1, end, ':');
+                idx++;
 
-            switch (bt){
-                case STR_MARK:
-                    seenDot = false;
-                    seenBool = -1;
-                    if(prevByte != STR_ESCAPE) {
-                        if (inString) {
-                            events.string(StringUtil.toString(bts, strStartIndex, i - strStartIndex));
-                            strStartIndex = -1;
-                        } else
-                            strStartIndex = i+1;
-
-                        inString ^= true;
-                    }
-                    inNonStrObj = false;
-                    break;
-                case STR_COL:
-                    if(!inString){
-                        inNonStrObj = true;
-                        strStartIndex = skipWhiteSpace(bts, i, btsLen);
-                    }
-                    break;
-                case STR_COMMA:
-                    if(inNonStrObj) {
-                        final int diff = i - lastNonSpace;
-                        if(diff > 1)
-                            parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
-                        inNonStrObj = seenDot = false;
-                        seenBool = -1;
-                    }
-                    break;
-                case OBJECT_START:
-                    if(!inString)
-                     events.objectStart();
-                    strStartIndex = i+1;
-                    seenDot = false;
-                    seenBool = -1;
-                    break;
-                case OBJECT_END:
-                    if(!inString){
-                        if(inNonStrObj){
-                            final int diff = i - lastNonSpace;
-                            if(diff > 1)
-                                parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
-                            inNonStrObj = seenDot = false;
-                            seenBool = -1;
-                        }
+                for(; idx < btsLen; idx++){
+                    bt = CharArrayTool.getChar(bts, idx);
+                    if(bt == '}') {
                         events.objectEnd();
-                    }
-                    seenDot = false;
-                    seenBool = -1;
-                    strStartIndex=i+1;
-                    break;
-                case ARR_START:
-                    if(!inString)
-                        events.arrStart();
+                        return idx++;
+                    }else if(bt == '"'){
+                        final int strStart2 = idx + 1;
+                        idx = CharArrayTool.endOfString(bts, strStart2, end);
+                        events.string(StringUtil.fastToString(bts, strStart2, idx-strStart2));
+                        idx++;
+                    }else if(Character.isDigit(bt)) {
 
-                    seenDot = false;
-                    seenBool = -1;
-                    strStartIndex=i+1;
-                    break;
-                case ARR_END:
-                    if(!inString){
-                        if(inNonStrObj){
-                            final int diff = i - lastNonSpace;
-                            if(diff > 1)
-                                parseNumber(events, bts, strStartIndex, diff, seenDot, seenBool);
-                            inNonStrObj = seenDot = false;
-                            seenBool = -1;
-                        }
-                        events.arrEnd();
+                    }else if(bt != ',' && bt != ' '){
+
+                        idx = parse(bts, idx, btsLen, events);
+
                     }
-                    strStartIndex=i+1;
-                    break;
-                case STR_DOT:
-                    if(inNonStrObj)
-                        seenDot = true;
-                    break;
-                case STR_F:
-                    seenBool = STR_F;
-                    break;
-                case STR_T:
-                    if(inNonStrObj)
-                        seenBool = STR_T;
-                    break;
-                case STR_f:
-                    if(inNonStrObj)
-                        seenBool = STR_F;
-                    break;
-                case STR_t:
-                    if(inNonStrObj)
-                        seenBool = STR_T;
-                    break;
+                }
+
+                return idx;
+
+            }else if(bt == '['){
+                //events.objectEnd();
+
+
             }
-
         }
-    }
 
-    private static final int skipWhiteSpace(char[] chars, int offset, int btsLen){
-        //skip white space
-        char bt;
-        for(; offset < btsLen;){
-            offset++;
-            bt = CharArrayTool.getChar(chars, offset);
-            if(bt != STR_SPACE)
-                break;
-        }
-        return offset;
-    }
-
-    /**
-     * Returns a String from a number.
-     * @param events
-     * @param bts
-     * @param i
-     * @param len
-     */
-    private static final void parseNumber(JSONListener events, char[] bts, int i, int len, boolean seenDot, byte seenBool){
-        final String str = StringUtil.fastToString(bts, i, len);
-        System.out.println("String: " + str + " count: " + str.length());
-        if(seenDot)
-            events.number(Double.valueOf(str));
-        else if(seenBool == STR_T)
-            events.number(Boolean.TRUE);
-        else if(seenBool == STR_F)
-            events.number(Boolean.FALSE);
-        else if(str.charAt(0) == 'n')
-            events.string("null");
-        else if(str.length() < 10)
-            events.number(Integer.valueOf(str));
-        else
-            events.number(Long.valueOf(str));
+        return i;
     }
 
     /**
