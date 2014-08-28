@@ -11,6 +11,7 @@ public abstract class JSONListener {
     public abstract void number(Double i);
     public abstract void number(Boolean i);
 
+    public abstract void lazyValue(LazyValue val);
     public abstract void objectStart();
     public abstract void objectEnd();
 

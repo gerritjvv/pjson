@@ -1,14 +1,14 @@
 package pjson;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Return the JSON data as: Objects == Map, Array == Vector, keys and values as String.
  */
 public final class DefaultListener extends JSONListener{
 
-    private final List<ValueContainer> stack = new ArrayList<ValueContainer>();
+    //private final List<ValueContainer> stack = new ArrayList<ValueContainer>();
+    private ValueContainer[] stack = new ValueContainer[10];
+    private int stackPointer = 0;
+
     private ValueContainer current;
 
     @Override
@@ -37,33 +37,38 @@ public final class DefaultListener extends JSONListener{
     }
 
     @Override
+    public void lazyValue(LazyValue val) {
+        current.append(val);
+    }
+
+    @Override
     public final void objectStart() {
        if(current != null)
-           stack.add(current);
+           push(current);
 
-        current = new ValueContainer.ObjectContainer();
+       current = new ValueContainer.AssocObjContainer();
     }
 
     @Override
     public final void objectEnd() {
-        ValueContainer parent = pop();
-        if(parent != null) {
-            parent.append(current.getValue());
-            current = parent;
-        }
+        popValue();
     }
 
     @Override
     public final void arrStart() {
         if(current != null)
-            stack.add(current);
+            push(current);
 
         current = new ValueContainer.ArrayContainer();
     }
 
     @Override
     public final void arrEnd() {
-        ValueContainer parent = pop();
+        popValue();
+    }
+
+    private final void popValue(){
+        final ValueContainer parent = pop();
         if(parent != null) {
             parent.append(current.getValue());
             current = parent;
@@ -71,10 +76,23 @@ public final class DefaultListener extends JSONListener{
     }
 
     private final ValueContainer pop(){
-        return (stack.size() > 0)? stack.remove(stack.size() - 1) : null;
+       return (stackPointer > 0) ? stack[--stackPointer] : stack[0];
+    }
+
+    private final void push(final ValueContainer container){
+        if(stackPointer < stack.length)
+            stack[stackPointer++] = container;
+        else{
+            //grow stack
+            final ValueContainer[] newStack = new ValueContainer[stack.length + 5];
+            System.arraycopy(stack, 0, newStack, 0, stack.length);
+            stack = newStack;
+            stack[stackPointer++] = container;
+        }
     }
 
     public final Object getValue(){
-        return current.getValue();
+        return (current == null) ? null : current.getValue();
     }
+
 }

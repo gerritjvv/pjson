@@ -24,6 +24,7 @@
   :aot [pjson.core]
   :main pjson.core
   :dependencies [
+                  [org.magicwerk/brownies-collections "0.9.6"]
                   [io.fastjson/boon "0.18" :scope "provided"] ;used for benchmark testing
                   [criterium "0.4.3"]
                   [org.clojure/clojure "1.6.0"]])
