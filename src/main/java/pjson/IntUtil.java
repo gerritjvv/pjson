@@ -1,7 +1,6 @@
 package pjson;
 
 /**
- * Created by gvanvuuren on 29/07/14.
  */
 public class IntUtil {
     /**

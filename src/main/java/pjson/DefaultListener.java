@@ -67,6 +67,20 @@ public final class DefaultListener extends JSONListener{
         popValue();
     }
 
+    @Override
+    public void lazyObject(char[] json, int from, int end) {
+        LazyMap map = new LazyMap(json, from, end - from);
+        if(current != null)
+            current.append(map);
+    }
+
+    @Override
+    public void lazyArr(char[] json, int from, int end) {
+        LazyVector v = new LazyVector(json, from, end - from);
+        if(current != null)
+            current.append(v);
+    }
+
     private final void popValue(){
         final ValueContainer parent = pop();
         if(parent != null) {

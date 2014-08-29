@@ -6,11 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * @TODO implement pop semantincs
- * @TODO vector assoc implement
- * @TODO implement vector conj
+ * @TODO dissoc bugs
  */
-public final class JSONAssociative implements IPersistentMap {
+public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed {
     final private Object[] arr;
     final int len;
 
@@ -91,9 +89,10 @@ public final class JSONAssociative implements IPersistentMap {
         int i = indexOf(key);
         if (i >= 0) //have key, will remove
         {
-            int newlen = arr.length - 2;
+            int newlen = len - 2;
             if (newlen == 0)
-                return PersistentArrayMap.EMPTY;
+                return new JSONAssociative(new Object[0], 0);
+
             Object[] newArray = new Object[newlen];
             for (int s = 0, d = 0; s < len; s += 2) {
                 if (!equalKey(arr[s], key)) //skip removal key
@@ -103,7 +102,7 @@ public final class JSONAssociative implements IPersistentMap {
                     d += 2;
                 }
             }
-            return new JSONAssociative(newArray, newArray.length);
+            return new JSONAssociative(newArray, newlen);
         }
         //don't have key, no op
         return this;
@@ -133,28 +132,25 @@ public final class JSONAssociative implements IPersistentMap {
     @Override
     public final String toString() {
         StringBuilder buff = new StringBuilder();
+        toString(buff);
+        return buff.toString();
+    }
+
+    public final void toString(StringBuilder buff) {
         buff.append('{');
         final int len2 = len - 2;
         for (int i = 0; i < len; i += 2) {
             Object k = arr[i];
-            if (k instanceof String)
-                buff.append('"').append(k).append('"');
-            else
-                buff.append(k);
+            StringUtil.toJSONString(buff, k);
 
             buff.append(':');
 
             Object v = arr[i + 1];
-            if (v instanceof String)
-                buff.append('"').append(v).append('"');
-            else
-                buff.append(v);
-
+            StringUtil.toJSONString(buff, v);
             if (i < len2)
                 buff.append(",");
         }
         buff.append('}');
-        return buff.toString();
     }
 
     @Override
@@ -169,23 +165,17 @@ public final class JSONAssociative implements IPersistentMap {
     }
 
     @Override
-    public final IPersistentCollection cons(Object o) {
-        return seq().cons(o);
-    }
-
-    @Override
     public final IPersistentCollection empty() {
         return new JSONAssociative(new Object[0], 0);
     }
 
-    @Override
-    public final boolean equiv(Object o) {
-        return seq().equiv(o);
-    }
 
     @Override
     public final ISeq seq() {
-        return new JSONAssocSEQ(arr, 0, len);
+        if (count() > 0)
+            return new JSONAssocSEQ(this, 0);
+        else
+            return null;
     }
 
     @Override
@@ -193,84 +183,74 @@ public final class JSONAssociative implements IPersistentMap {
         return new Iter(arr, 0, len);
     }
 
-    public final static class JSONAssocSEQ implements ISeq, Indexed, Counted {
+    @Override
+    public Object nth(int i) {
+        int index = i * 2;
+        int count = len;
+        if (i > -1 && index + 1 < count)
+            return new JSONIMapEntry(arr[index], arr[index + 1]);
+        else
+            throw new ArrayIndexOutOfBoundsException();
+    }
 
-        private final Object[] arr;
-        private final int len;
-        private final int i;
+    @Override
+    public Object nth(int i, Object notFound) {
+        try {
+            return nth(i);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return notFound;
+        }
+    }
 
-        public JSONAssocSEQ(Object[] arr, int i, int len) {
-            this.arr = arr;
-            this.len = len;
+    public final static class JSONAssocSEQ extends ASeq implements Indexed, Counted {
+
+        final JSONAssociative map;
+        final int i;
+
+        public JSONAssocSEQ(JSONAssociative map, int i) {
+            this.map = map;
             this.i = i;
         }
 
         @Override
         public final Object first() {
-            return (i + 1 < len) ? new JSONIMapEntry(arr[i], arr[i + 1]) : null;
+            if (i < map.count())
+                return map.nth(i);
+            else
+                return null;
         }
 
         @Override
         public final ISeq next() {
-            return (i + 3 < len) ? new JSONAssocSEQ(arr, i + 2, len) : null;
-        }
-
-        @Override
-        public final ISeq more() {
-            ISeq n = next();
-            return (n == null) ? new JSONAssocSEQ(new Object[0], 0, 0) : n;
+            if (i + 1 < map.count())
+                return new JSONAssocSEQ(map, i + 1);
+            else
+                return null;
         }
 
         @Override
         public final int count() {
-            return (len - i) / 2;
-        }
-
-        @Override
-        public final ISeq cons(Object o) {
-            return PersistentVector.create(this).cons(o).seq();
+            return map.count();
         }
 
         @Override
         public final IPersistentCollection empty() {
-            return new JSONAssocSEQ(new Object[0], 0, 0);
+            return new JSONAssocSEQ(map, map.count());
         }
 
         @Override
-        public final boolean equiv(Object o) {
-            if (o instanceof JSONAssocSEQ) {
-                final JSONAssocSEQ seq = (JSONAssocSEQ) o;
-                final Object[] arr2 = seq.arr;
-                final int i2 = seq.i;
-                final int len2 = seq.len;
-                final int diff1 = len - i;
-                final int diff2 = len2 - i2;
-                if (diff1 == diff2) {
-                    for (int a = i, b = i2; a < len && b < len2; a++, b++) {
-                        if (!Util.equiv(arr[a], arr2[b]))
-                            return false;
-                    }
-                    return true;
-                }
-            }
-            return false;
+        public final Object nth(int index) {
+            return map.nth(i + index);
         }
 
         @Override
-        public final ISeq seq() {
+        public final Object nth(int index, Object notFound) {
+            return map.nth(i + index, notFound);
+        }
+
+        @Override
+        public Obj withMeta(IPersistentMap meta) {
             return this;
-        }
-
-        @Override
-        public final Object nth(int i) {
-            int index = i * 2;
-            return (index + 1 < len) ? new JSONIMapEntry(arr[index], arr[index + 1]) : null;
-        }
-
-        @Override
-        public final Object nth(int i, Object notFound) {
-            Object obj = nth(i);
-            return (obj == null) ? notFound : obj;
         }
     }
 
@@ -308,20 +288,13 @@ public final class JSONAssociative implements IPersistentMap {
             throw new RuntimeException("setValue is not supported");
         }
 
-        private static final void addObj(StringBuilder buff, Object v) {
-            if (v instanceof String)
-                buff.append('"').append(v).append('"');
-            else
-                buff.append(v);
-        }
-
         @Override
         public String toString() {
             StringBuilder buff = new StringBuilder();
             buff.append('[');
-            addObj(buff, key);
+            StringUtil.toJSONString(buff, key);
             buff.append(',');
-            addObj(buff, val);
+            StringUtil.toJSONString(buff, val);
             buff.append(']');
 
             return buff.toString();
@@ -335,7 +308,7 @@ public final class JSONAssociative implements IPersistentMap {
 
         Iter(Object[] arr, int i, int len) {
             this.arr = arr;
-            this.i = i;
+            this.i = i - 2;
             this.len = len;
         }
 
@@ -357,14 +330,20 @@ public final class JSONAssociative implements IPersistentMap {
 
     }
 
-    public static final class JSONVector extends APersistentVector {
+    public static final class JSONVector extends APersistentVector implements ToJSONString {
 
+        final String json;
         final Object[] arr;
         final int len;
 
-        public JSONVector(Object[] arr, int len) {
+        public JSONVector(String json, Object[] arr, int len) {
+            this.json = json;
             this.arr = arr;
             this.len = len;
+        }
+
+        public JSONVector(Object[] arr, int len) {
+            this(null, arr, len);
         }
 
         @Override
@@ -479,11 +458,10 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public IPersistentStack pop() {
-
             int count = count();
-            if(count == 1)
+            if (count == 1)
                 return new JSONVector(arr, 0);
-            else if(count > 1)
+            else if (count > 1)
                 return new JSONVector(arr, len - 1);
             else
                 throw new IllegalStateException("Can't pop empty vector");
@@ -504,13 +482,13 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public ISeq rseq() {
-            if(len > 0) {
+            if (len > 0) {
                 Object[] temp = new Object[len];
                 for (int a = len - 1; a > -1; a--) {
                     temp[len - a - 1] = arr[a];
                 }
                 return new PersistentVector.RSeq(this, count() - 1);
-            }else{
+            } else {
                 return null;
             }
         }
@@ -518,7 +496,7 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public ISeq seq() {
-            if(len > 0)
+            if (len > 0)
                 return new VectorSeq(this, 0);
             else
                 return null;
@@ -526,26 +504,41 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public final String toString() {
-            StringBuilder buff = new StringBuilder((len * 4) + 2);
-            if (len > 0) {
-                buff.append('[').append(arr[0]);
-
-                for (int i = 1; i < len; i++)
-                    buff.append(',').append(arr[i]);
-
-                buff.append(']');
-
+            if (json == null) {
+                StringBuilder buff = new StringBuilder((len * 4) + 2);
+                toString(buff);
                 return buff.toString();
+            } else
+                return json;
+        }
+
+        @Override
+        public final void toString(StringBuilder buff) {
+            if (json == null) {
+                if (len > 0) {
+                    buff.append('[');
+                    StringUtil.toJSONString(buff, arr[0]);
+
+                    for (int i = 1; i < len; i++) {
+                        buff.append(',');
+                        StringUtil.toJSONString(buff, arr[i]);
+                    }
+
+                    buff.append(']');
+                } else {
+                    buff.append("[]");
+                }
             } else {
-                return "[]";
+                buff.append(json);
             }
         }
     }
 
-    public static final class VectorSeq extends ASeq implements Indexed{
+    public static final class VectorSeq extends ASeq implements Indexed, ToJSONString {
 
         final JSONVector vector;
         final int i;
+
         public VectorSeq(JSONVector vector, int i) {
             this.vector = vector;
             this.i = i;
@@ -553,13 +546,13 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public Object first() {
-           return nth(0, null);
+            return nth(0, null);
         }
 
         @Override
         public ISeq next() {
-            if(i + 1 < vector.count()){
-                return new VectorSeq(vector, i+1);
+            if (i + 1 < vector.count()) {
+                return new VectorSeq(vector, i + 1);
             }
             return null;
         }
@@ -581,7 +574,7 @@ public final class JSONAssociative implements IPersistentMap {
 
         @Override
         public Object nth(int index) {
-           return vector.nth(index + i);
+            return vector.nth(index + i);
         }
 
         @Override
@@ -591,19 +584,9 @@ public final class JSONAssociative implements IPersistentMap {
         }
 
         @Override
-        public String toString(){
-
-            int count = count();
-            StringBuilder buff = new StringBuilder((count * 4) + 2);
-            buff.append('[');
-            if(count > 0){
-                buff.append(vector.arr[i]);
-                if(count > 1){
-                    for(int a = i+1; a < vector.count(); a++)
-                        buff.append(',').append(vector.arr[a]);
-                }
-            }
-            buff.append(']');
+        public String toString() {
+            StringBuilder buff = new StringBuilder((count() * 4) + 2);
+            toString(buff);
             return buff.toString();
         }
 
@@ -611,5 +594,22 @@ public final class JSONAssociative implements IPersistentMap {
         public Obj withMeta(IPersistentMap meta) {
             return this;
         }
+
+        @Override
+        public void toString(StringBuilder buff) {
+            int count = count();
+            buff.append('[');
+            if (count > 0) {
+                StringUtil.toJSONString(buff, vector.arr[i]);
+                if (count > 1) {
+                    for (int a = i + 1; a < vector.count(); a++) {
+                        buff.append(',');
+                        StringUtil.toJSONString(buff, vector.arr[a]);
+                    }
+                }
+            }
+            buff.append(']');
+        }
     }
+
 }

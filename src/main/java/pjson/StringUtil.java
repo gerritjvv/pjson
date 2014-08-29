@@ -1,9 +1,14 @@
 package pjson;
 
+import clojure.lang.*;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility functions for converting bytes to String.
@@ -207,5 +212,139 @@ public final class StringUtil {
             dst[i] = (char)(src[i] & 0xff);
 
         return dst;
+    }
+
+    public static String toJSONString(Object obj){
+        StringBuilder buff = new StringBuilder();
+        toJSONString(buff, obj);
+        return buff.toString();
+    }
+
+    public static void toJSONString(StringBuilder buff, Object obj){
+        if(obj instanceof ToJSONString)
+            ((ToJSONString)obj).toString(buff);
+        else if(obj instanceof String)
+            buff.append('"').append(obj).append('"');
+        else if(obj instanceof IPersistentMap)
+            toJSONString(buff, (IPersistentMap)obj);
+        else if (obj instanceof Map)
+            toJSONString(buff, (Map<Object, Object>) obj);
+        else if(obj instanceof Collection)
+            toJSONString(buff, (Collection<Object>) obj);
+        else if(obj instanceof Seqable)
+            toJSONString(buff, (Seqable) obj);
+        else if(obj instanceof Keyword)
+            buff.append('"').append(((Keyword) obj).getName()).append('"');
+        else
+            buff.append(obj);
+    }
+
+    public static String toJSONString(Seqable s){
+        StringBuilder buff = new StringBuilder();
+        toJSONString(buff, s);
+        return buff.toString();
+    }
+
+    public static void toJSONString(StringBuilder buff, Seqable s){
+        ISeq seq = s.seq();
+        Object first = seq.first();
+        if(first != null) {
+            toJSONString(buff, seq.first());
+            while((seq = seq.next()) != null)
+               toJSONString(buff.append(','), seq.first());
+
+        }else{
+            buff.append("[]");
+        }
+
+    }
+
+    public static String toJSONString(Collection<Object> coll){
+        StringBuilder buff = new StringBuilder();
+        toJSONString(buff, coll);
+        return buff.toString();
+    }
+
+    public static void toJSONString(StringBuilder buff, Collection<Object> coll){
+        buff.append('[');
+
+        if(coll.size() > 0){
+            Iterator<Object> it = coll.iterator();
+            toJSONString(buff, it.next());
+            if(coll.size() > 1){
+                for(; it.hasNext();)
+                    toJSONString(buff.append(','), it.next());
+            }
+
+        }
+        buff.append(']');
+    }
+
+    public static String toJSONString(Map<Object, Object> map){
+        StringBuilder buff = new StringBuilder();
+        toJSONString(buff, map);
+        return buff.toString();
+    }
+
+    public static void toJSONString(StringBuilder buff, Map<Object, Object> map){
+        Set<Map.Entry<Object, Object>> entries = map.entrySet();
+        int entrySize = entries.size();
+
+        buff.append('{');
+
+        if(entrySize > 0) {
+
+            Iterator<Map.Entry<Object, Object>> it = entries.iterator();
+            System.out.println("toJSONString: " + entries);
+            Map.Entry<Object, Object> entry = it.next();
+            toJSONString(buff, entry.getKey());
+            buff.append(':');
+            toJSONString(buff, entry.getValue());
+
+            if(entrySize > 1){
+
+                for (; it.hasNext();) {
+                    entry = it.next();
+                    toJSONString(buff.append(','), entry.getKey());
+                    toJSONString(buff.append(':'), entry.getValue());
+                }
+            }
+        }
+
+        buff.append('}');
+    }
+
+    public static String toJSONString(IPersistentMap map){
+        StringBuilder buff = new StringBuilder();
+        toJSONString(buff, map);
+        return buff.toString();
+    }
+
+    public static void toJSONString(StringBuilder buff, IPersistentMap map){
+
+        Iterator<IMapEntry> it = map.iterator();
+
+        int entrySize = map.count();
+
+        buff.append('{');
+
+        if(entrySize > 0) {
+
+            IMapEntry entry = it.next();
+            toJSONString(buff, entry.getKey());
+            buff.append(':');
+            toJSONString(buff, entry.getValue());
+
+            if(entrySize > 1){
+
+                for (; it.hasNext();) {
+                    entry = it.next();
+                    toJSONString(buff.append(','), entry.getKey());
+                    toJSONString(buff.append(':'), entry.getValue());
+                }
+            }
+        }
+
+        buff.append('}');
     }
 }

@@ -18,4 +18,7 @@ public abstract class JSONListener {
     public abstract void arrStart();
     public abstract void arrEnd();
 
+    public abstract void lazyObject(char[] json, int from, int end);
+    public abstract void lazyArr(char[] json, int from, int end);
+
 }

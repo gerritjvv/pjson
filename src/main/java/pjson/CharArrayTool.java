@@ -46,6 +46,24 @@ public final class CharArrayTool {
         return i;
     }
 
+    public static final int indexOfEndOfObject(char[] data, int offset, int end, char openChar, char closingChar){
+        int i;
+        int level = 0;
+        char ch;
+        for(i = offset; i < end; i++){
+            ch = data[i];
+            if(ch == openChar)
+                level++;
+            else if(ch == closingChar){
+                if(level == 0)
+                    return i+1;
+                else
+                    level--;
+            }
+        }
+        return i;
+    }
+
     public static final int skipWhiteSpace(char[] data, int offset, int end){
         int i;
         for(i = offset; i < end; i++){

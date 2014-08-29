@@ -1,10 +1,18 @@
 (ns pjson.core
 
-  (:import [pjson PJSON StringUtil]
-           (java.nio.charset Charset))
+  (:import [pjson PJSON StringUtil JSONAssociative ToJSONString]
+           (java.nio.charset Charset)
+           (java.util Map Collection)
+           (clojure.lang Seqable IPersistentMap))
   (:gen-class))
 
-(defonce DEFAULT_CHARSET (StringUtil/DEFAULT_CHAR_SET))
+(defonce ^Charset DEFAULT_CHARSET (StringUtil/DEFAULT_CHAR_SET))
+
+(defprotocol JSONToString
+  (asString [obj]))
+
+(defprotocol JSONParser
+  (asObj [obj]))
 
 (defn get-charset [n]
   (Charset/forName n))
@@ -18,54 +26,53 @@
    ;defaultParse(final Charset charset, final byte[] bts, final int start, final int len)
    (PJSON/defaultParse charset bts (int from) (int len))))
 
+(defn bts->lazy-json
+  ([^"[B" bts]
+   (bts->lazy-json DEFAULT_CHARSET bts))
+  ([^Charset charset ^"[B" bts]
+   (PJSON/defaultLazyParse charset bts))
+  ([^Charset charset ^"[B" bts ^Long from ^Long len]
+   (PJSON/defaultLazyParse charset bts (int from) (int len))))
+
+(def Chararray (Class/forName "[C"))
+
+(extend-protocol JSONParser
+  String
+  (asObj [^String obj]
+    (asObj (.toCharArray obj))))
+
+(extend-protocol JSONParser
+  (Class/forName "[C")
+  (asObj [^"[C" obj]
+    (PJSON/defaultLazyParse DEFAULT_CHARSET ^"[C" obj)))
+
+(extend-protocol JSONParser
+  (Class/forName "[B")
+  (asObj [^"[B" obj]
+    (bts->lazy-json obj)))
+
+
+(extend-protocol JSONToString
+  ToJSONString
+  (asString [^ToJSONString this]
+    (.toString this))
+  IPersistentMap
+  (asString [^IPersistentMap this]
+    (StringUtil/toJSONString this))
+  Map
+  (asString [^Map this]
+    (StringUtil/toJSONString this))
+  Collection
+  (asString [^Collection this]
+    (StringUtil/toJSONString this))
+  Seqable
+  (asString [^Seqable this]
+    (StringUtil/toJSONString this))
+  Object
+  (asString [^Object this]
+    (StringUtil/toJSONString this)))
+
 (comment
-  ;With Transient Map :inline
-  ; no inline clojure.lang.PersistentHashMap$BitmapIndexedNode::assoc (552 bytes)   hot method too big
-  "Evaluation count : 8496780 in 60 samples of 141613 calls.
-             Execution time mean : 7.039408 µs
-    Execution time std-deviation : 119.384282 ns
-   Execution time lower quantile : 6.886992 µs ( 2.5%)
-   Execution time upper quantile : 7.284869 µs (97.5%)
-                   Overhead used : 1.817498 ns"
-
-  ;With PersistentArrayMap
-  "
-  Evaluation count : 13056660 in 60 samples of 217611 calls.
-             Execution time mean : 4.542464 µs
-    Execution time std-deviation : 166.410236 ns
-   Execution time lower quantile : 4.347147 µs ( 2.5%)
-   Execution time upper quantile : 4.799114 µs (97.5%)
-                   Overhead used : 1.792457 ns
-
-Found 1 outliers in 60 samples (1.6667 %)
-	low-severe	 1 (1.6667 %)
- Variance from outliers : 23.7872 % Variance is moderately inflated by outliers
-  "
-
-  ;With ArrayList then new PersistentArrayMap(list.toArray())
-  "
-  Evaluation count : 19772100 in 60 samples of 329535 calls.
-             Execution time mean : 3.057527 µs
-    Execution time std-deviation : 31.518001 ns
-   Execution time lower quantile : 3.030034 µs ( 2.5%)
-   Execution time upper quantile : 3.163325 µs (97.5%)
-                   Overhead used : 1.553263 ns
-
-Found 3 outliers in 60 samples (5.0000 %)
-	low-severe	 3 (5.0000 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-  "
-
-  ;;;with 100 000 dotimes
-  "
-  new String:
-  Execution time mean : 350.024593 ms
-
-  char[] array.
-  Execution time mean : 337.154454 ms
-
-  mix: Strings use new String, numbers use char[] array
-  Execution time mean : 321.539024 ms
-  "
+  Lazy Evalulation is 10 times faster than normal.
 
   )

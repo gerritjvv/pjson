@@ -1,5 +1,5 @@
 (ns pjson.bench
-  (:require [pjson.core :refer [bts->json]]
+  (:require [pjson.core :refer [bts->json bts->lazy-json asObj]]
             [pjson.data :refer [msg-bts msg]]
             [criterium.core :as crit])
   (:import [org.boon.json  JsonFactory JsonParserFactory ObjectMapper JsonParserAndMapper]))
@@ -20,6 +20,15 @@ base bench: 640 ms
 (defn do-parse []
   (bts->json msg-bts))
 
+
+(defn do-lazy-parse []
+  (bts->lazy-json msg-bts))
+
+
+
+(defn do-lazy-parse2 []
+  (dotimes [i 100000]
+    (asObj msg-bts)))
 
 (defn do-parse2 []
   (dotimes [i 100000]
@@ -44,6 +53,9 @@ base bench: 640 ms
 
 (defn bench2 []
   (crit/with-progress-reporting  (crit/bench (do-parse2))))
+
+(defn lazy-bench2 []
+  (crit/with-progress-reporting  (crit/bench (do-lazy-parse2))))
 
 (defn bench3 []
   (crit/with-progress-reporting  (crit/bench (do-parse3))))
