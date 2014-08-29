@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * @TODO dissoc bugs
  */
 public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed {
     final private Object[] arr;

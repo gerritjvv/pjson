@@ -246,17 +246,20 @@ public final class StringUtil {
     }
 
     public static void toJSONString(StringBuilder buff, Seqable s){
-        ISeq seq = s.seq();
-        Object first = seq.first();
-        if(first != null) {
-            toJSONString(buff, seq.first());
-            while((seq = seq.next()) != null)
-               toJSONString(buff.append(','), seq.first());
+        if(s instanceof ToJSONString)
+            ((ToJSONString)s).toString(buff);
+        else{
+            ISeq seq = s.seq();
+            Object first = seq.first();
+            if(first != null) {
+                toJSONString(buff, seq.first());
+                while((seq = seq.next()) != null)
+                    toJSONString(buff.append(','), seq.first());
 
-        }else{
-            buff.append("[]");
+            }else{
+                buff.append("[]");
+            }
         }
-
     }
 
     public static String toJSONString(Collection<Object> coll){
@@ -266,18 +269,22 @@ public final class StringUtil {
     }
 
     public static void toJSONString(StringBuilder buff, Collection<Object> coll){
-        buff.append('[');
+        if(coll instanceof ToJSONString)
+            ((ToJSONString)coll).toString(buff);
+        else{
+            buff.append('[');
 
-        if(coll.size() > 0){
-            Iterator<Object> it = coll.iterator();
-            toJSONString(buff, it.next());
-            if(coll.size() > 1){
-                for(; it.hasNext();)
-                    toJSONString(buff.append(','), it.next());
+            if(coll.size() > 0){
+                Iterator<Object> it = coll.iterator();
+                toJSONString(buff, it.next());
+                if(coll.size() > 1){
+                    for(; it.hasNext();)
+                        toJSONString(buff.append(','), it.next());
+                }
+
             }
-
+            buff.append(']');
         }
-        buff.append(']');
     }
 
     public static String toJSONString(Map<Object, Object> map){
@@ -287,31 +294,35 @@ public final class StringUtil {
     }
 
     public static void toJSONString(StringBuilder buff, Map<Object, Object> map){
-        Set<Map.Entry<Object, Object>> entries = map.entrySet();
-        int entrySize = entries.size();
+        if(map instanceof ToJSONString)
+            ((ToJSONString)map).toString(buff);
+        else{
+            Set<Map.Entry<Object, Object>> entries = map.entrySet();
+            int entrySize = entries.size();
 
-        buff.append('{');
+            buff.append('{');
 
-        if(entrySize > 0) {
+            if(entrySize > 0) {
 
-            Iterator<Map.Entry<Object, Object>> it = entries.iterator();
-            System.out.println("toJSONString: " + entries);
-            Map.Entry<Object, Object> entry = it.next();
-            toJSONString(buff, entry.getKey());
-            buff.append(':');
-            toJSONString(buff, entry.getValue());
+                Iterator<Map.Entry<Object, Object>> it = entries.iterator();
+                Map.Entry<Object, Object> entry = it.next();
+                toJSONString(buff, entry.getKey());
+                buff.append(':');
+                toJSONString(buff, entry.getValue());
 
-            if(entrySize > 1){
+                if(entrySize > 1){
 
-                for (; it.hasNext();) {
-                    entry = it.next();
-                    toJSONString(buff.append(','), entry.getKey());
-                    toJSONString(buff.append(':'), entry.getValue());
+                    for (; it.hasNext();) {
+                        entry = it.next();
+                        toJSONString(buff.append(','), entry.getKey());
+                        toJSONString(buff.append(':'), entry.getValue());
+                    }
                 }
             }
+
+            buff.append('}');
         }
 
-        buff.append('}');
     }
 
     public static String toJSONString(IPersistentMap map){
@@ -322,29 +333,33 @@ public final class StringUtil {
 
     public static void toJSONString(StringBuilder buff, IPersistentMap map){
 
-        Iterator<IMapEntry> it = map.iterator();
+        if(map instanceof ToJSONString)
+            ((ToJSONString)map).toString(buff);
+        else{
+            Iterator<IMapEntry> it = map.iterator();
 
-        int entrySize = map.count();
+            int entrySize = map.count();
 
-        buff.append('{');
+            buff.append('{');
 
-        if(entrySize > 0) {
+            if(entrySize > 0) {
 
-            IMapEntry entry = it.next();
-            toJSONString(buff, entry.getKey());
-            buff.append(':');
-            toJSONString(buff, entry.getValue());
+                IMapEntry entry = it.next();
+                toJSONString(buff, entry.getKey());
+                buff.append(':');
+                toJSONString(buff, entry.getValue());
 
-            if(entrySize > 1){
+                if(entrySize > 1){
 
-                for (; it.hasNext();) {
-                    entry = it.next();
-                    toJSONString(buff.append(','), entry.getKey());
-                    toJSONString(buff.append(':'), entry.getValue());
+                    for (; it.hasNext();) {
+                        entry = it.next();
+                        toJSONString(buff.append(','), entry.getKey());
+                        toJSONString(buff.append(':'), entry.getValue());
+                    }
                 }
             }
-        }
 
-        buff.append('}');
+            buff.append('}');
+        }
     }
 }

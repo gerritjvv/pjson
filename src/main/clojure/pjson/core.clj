@@ -1,5 +1,4 @@
 (ns pjson.core
-
   (:import [pjson PJSON StringUtil JSONAssociative ToJSONString]
            (java.nio.charset Charset)
            (java.util Map Collection)
@@ -71,8 +70,3 @@
   Object
   (asString [^Object this]
     (StringUtil/toJSONString this)))
-
-(comment
-  Lazy Evalulation is 10 times faster than normal.
-
-  )

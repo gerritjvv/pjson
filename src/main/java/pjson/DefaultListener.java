@@ -37,11 +37,6 @@ public final class DefaultListener extends JSONListener{
     }
 
     @Override
-    public void lazyValue(LazyValue val) {
-        current.append(val);
-    }
-
-    @Override
     public final void objectStart() {
        if(current != null)
            push(current);
