@@ -64,6 +64,8 @@ System.out.println(obj);
 
 To run your own benchmarks use ```lein perforate```.
 
+The run takes some time, you might want to comment out the slower ones to speed up the process.
+
 Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"
 
 Note:
@@ -85,6 +87,7 @@ Summary of the benchmark results are below (in order of faster to slowest).
 </table>
 
 ### Details
+
 ```
 Goal:  JSON Parse Benchmark
 -----
@@ -151,7 +154,14 @@ Found 2 outliers in 60 samples (3.3333 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
  
 ```
-## License
+
+## Gratitude
+
+This library could not have been written without the wonderful work done on the json boon library already.
+
+It has shown me how to use Unsafe to create String(s) really fast, and where appropriate I've shamelessly copied.
+
+# License
 
 Copyright © 2014 gerritjvv@gmail.com
 

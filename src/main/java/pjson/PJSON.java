@@ -4,8 +4,7 @@ import java.nio.charset.Charset;
 
 /**
  * Fast simple json parser.<br/>
- * Note that numbers are not converted to any Java number and are returned as java Strings.<br/>
- * This improves performs but has the side effect that you need to parse any number data before treating it as an actual number.
+ * The code is ugly but the aim is performance.
  */
 public final class PJSON {
 
