@@ -27,6 +27,13 @@ This library concentrates on maximum performance and thus tries to manipulate da
 If you are using this library in a backend to send data to Java Script, you need to escape your strings according to
 the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
 
+## Charsets and language encodings
+
+
+The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).
+To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.
+
+
 ## Usage
 
 ### Clojure
@@ -66,7 +73,9 @@ System.out.println(obj);
 
 ```
 
-## Benchmarks
+## Benchmark 1 (Lazy minimum parsing)
+
+The aim is to see how fast I can pass a message to a library, do the bare minimum parsing and return back a result. This benchmark is not fair to the non lazy libraries but does show a practicle example where in practice you almost never acess 100% of a message.
 
 To run your own benchmarks use ```lein perforate```.
 
@@ -77,7 +86,9 @@ Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"
 Note:
 
 The benchmarks use the default lazy parsing of both boon and pjson.
-PJSON takes less than half
+PJSON takes less than half. The benchmarks are done this way because in practice (from my own experience) json messages are never read 100%, normally you read a message do some changes or read some parameters and then either write it somewhere or ignore it. The idea of this was to see how fast can I do minimum parsing on a message before its "usable"
+
+I'll release some more benchmarks that show different use cases.
 
 ### Summary
 
