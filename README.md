@@ -21,6 +21,12 @@ http://java-performance.info/charset-encoding-decoding-java-78/
 
 Always use the DEFAULT_CHARSET (from this library) which use the "ISO-8859-1" encoding.
 
+## JSONP
+
+This library concentrates on maximum performance and thus tries to manipulate data is little as possible.
+If you are using this library in a backend to send data to Java Script, you need to escape your strings according to
+the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
+
 ## Usage
 
 ### Clojure
