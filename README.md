@@ -50,15 +50,7 @@ the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
 
 ## Charsets and language encodings
 
-<<<<<<< HEAD
-The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).  
-To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.  
-=======
-
-The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).
-To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.
-
->>>>>>> d2693395e92c4a57f7bc627b3a67ebc6f44ac41b
+The fastest Charset is used by default which is the "ISO-8859-1" charset (optimized in java 1.7).
 
 ## Usage
 
