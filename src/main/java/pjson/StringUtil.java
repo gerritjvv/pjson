@@ -215,18 +215,27 @@ public final class StringUtil {
     }
 
     public static String toJSONString(Object obj){
-        StringBuilder buff = new StringBuilder();
+        int size = 200;
+        if(obj instanceof LazyMap)
+            size = ((LazyMap)obj).jsonLen();
+        else if(obj instanceof LazyVector)
+            size = ((LazyVector)obj).jsonLen();
+
+        StringBuilder buff = new StringBuilder(size);
         toJSONString(buff, obj);
         return buff.toString();
     }
 
     public static void toJSONString(StringBuilder buff, Object obj){
+
         if(obj instanceof ToJSONString)
             ((ToJSONString)obj).toString(buff);
-        else if(obj instanceof String)
-            buff.append('"').append(obj).append('"');
-        else if(obj instanceof IPersistentMap)
-            toJSONString(buff, (IPersistentMap)obj);
+        else if(obj instanceof String) {
+            //get char array directly from string to avoid extra char array copy
+            char[] arr = StringUtil.toCharArray((String)obj);
+            buff.append('"').append(arr, 0, arr.length).append('"');
+        }else if(obj instanceof IPersistentMap)
+            toJSONString(buff, (IPersistentMap) obj);
         else if (obj instanceof Map)
             toJSONString(buff, (Map<Object, Object>) obj);
         else if(obj instanceof Collection)
@@ -235,12 +244,14 @@ public final class StringUtil {
             toJSONString(buff, (Seqable) obj);
         else if(obj instanceof Keyword)
             buff.append('"').append(((Keyword) obj).getName()).append('"');
+        else if(obj instanceof Symbol)
+            buff.append('"').append(((Symbol) obj).getName()).append('"');
         else
             buff.append(obj);
     }
 
     public static String toJSONString(Seqable s){
-        StringBuilder buff = new StringBuilder();
+        StringBuilder buff = new StringBuilder(200);
         toJSONString(buff, s);
         return buff.toString();
     }
@@ -248,7 +259,9 @@ public final class StringUtil {
     public static void toJSONString(StringBuilder buff, Seqable s){
         if(s instanceof ToJSONString)
             ((ToJSONString)s).toString(buff);
-        else{
+        else if(s instanceof Map) {
+            toJSONString(buff, (Map)s);
+        }else{
             ISeq seq = s.seq();
             Object first = seq.first();
             if(first != null) {
@@ -263,7 +276,7 @@ public final class StringUtil {
     }
 
     public static String toJSONString(Collection<Object> coll){
-        StringBuilder buff = new StringBuilder();
+        StringBuilder buff = new StringBuilder(200);
         toJSONString(buff, coll);
         return buff.toString();
     }
@@ -271,7 +284,9 @@ public final class StringUtil {
     public static void toJSONString(StringBuilder buff, Collection<Object> coll){
         if(coll instanceof ToJSONString)
             ((ToJSONString)coll).toString(buff);
-        else{
+        else if(coll instanceof Map){
+               toJSONString(buff, (Map)coll);
+        }else{
             buff.append('[');
 
             if(coll.size() > 0){
@@ -288,7 +303,7 @@ public final class StringUtil {
     }
 
     public static String toJSONString(Map<Object, Object> map){
-        StringBuilder buff = new StringBuilder();
+        StringBuilder buff = new StringBuilder(200);
         toJSONString(buff, map);
         return buff.toString();
     }
@@ -326,7 +341,7 @@ public final class StringUtil {
     }
 
     public static String toJSONString(IPersistentMap map){
-        StringBuilder buff = new StringBuilder();
+        StringBuilder buff = new StringBuilder(200);
         toJSONString(buff, map);
         return buff.toString();
     }
@@ -362,4 +377,5 @@ public final class StringUtil {
             buff.append('}');
         }
     }
+
 }

@@ -8,6 +8,27 @@ The parser's focus is on speed and not validating json.
 
 All data returned are clojure persistent data structures that can be used with assoc, merge, map, reduce etc.
 
+## Who should use this library
+
+*   If any of the tradeoffs are not a stopper for your project
+*   You have some knowledge (or control) of the content you parse.
+*   You need speed at all cost.
+*   You spend more than 30-50% of your application time on json parsing, and need to scale more.
+
+### Assumptions about the data
+
+*   Characters '{' '[' cannot be used in the String values, not even escaped. This in practice happens rarely.
+    e.g ```{"a": "a \{"}``` cannot be parsed.
+*   The data is correct JSON data.
+*   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down.
+
+### Tradeoffs
+
+*   sun.misc.Unsafe must be supported on the JVM you use, if you are not using the Oracle JVM please test first.
+*   no format checking is provided.
+*   String data written as json is not checked or escaped in any way. Its assumed that your data is pre-validated for escaped characters.
+
+
 
 ## Speed, Charsets and JVM version
 
@@ -27,33 +48,55 @@ This library concentrates on maximum performance and thus tries to manipulate da
 If you are using this library in a backend to send data to Java Script, you need to escape your strings according to
 the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
 
+## Charsets and language encodings
+
+The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).  
+To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.  
+
 ## Usage
 
 ### Clojure
 
 ```clojure
-(require '[pjson.core :refer [asObj asString]])
+(require '[pjson.core :refer [read-str write-str get-charset]])
 
-(def m (asObj "{\"a\": 1}"))
+(def m (read-str "{\"a\": 1}"))
 ;;converts a String to a JSON object {} converts to Maps and [] converts to Vectors
 (type m)
 ;;pjson.JSONAssociative
 [(instance? java.util.Map m) (instance? clojure.lang.IPersistentMap m) (map? m)]
 ;;[true true true]
 
-(def v (asObj "[1, 2, 3]"))
+(def v (read-str "[1, 2, 3]"))
 ;;converts a String to a JSON object {} converts to Maps and [] converts to Vectors
 (type m)
 ;;pjson.JSONAssociative$JSONVector
 [(instance? java.util.Collection v) (instance? clojure.lang.IPersistentVector v) (vector? v)]
 ;;[true true true]
 
-(prn (asString m))
+(prn (write-str m))
 ;;"{\"a\":1}"
-(prn (asString {:a 2, :b 2}))
+(prn (write-str {:a 2, :b 2}))
 "{\"b\":2,\"a\":2}"
 
+;; read-str with different charsets
+(read-str "{\"a\": 1}" (get-charset "UTF-8"))
+;;{"a" 1}
+;; read-str with different default charset at a different offset
+(def s "myprop={\"a\": 1}")
+(read-str s (get-charset "UTF-8") 8 (count s))
+;;{"a" 1}
+
+
 ```
+
+### Compatibility with other parser libraries.
+
+The ```pjson.core``` namespace defines the following single arity functions to allow easy swap between other json libraries.
+
+  *  write-str, read-str is the same as data.json
+  *  generate-string, parse-string for cheshire
+  *  asObj, asString for backwards compatibility in this library
 
 ### Java
 
@@ -66,18 +109,19 @@ System.out.println(obj);
 
 ```
 
-## Benchmarks
+## Benchmark 1 (Lazy minimum parsing)
 
-To run your own benchmarks use ```lein perforate```.
+The aim is to see how fast I can pass a message to a library,   
+do the bare minimum parsing and return back a result.  
+This benchmark is not fair to the non lazy libraries but does show a practical example where in practice you almost never acess 100% of a message.  
 
-The run takes some time, you might want to comment out the slower ones to speed up the process.
+I'll release some more benchmarks that show different use cases.  
 
-Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"
+To run your own benchmarks use ```lein perforate```.  
+The run takes some time, you might want to comment out the slower ones to speed up the process.  
 
-Note:
+Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"  
 
-The benchmarks use the default lazy parsing of both boon and pjson.
-PJSON takes less than half
 
 ### Summary
 
@@ -161,11 +205,136 @@ Found 2 outliers in 60 samples (3.3333 %)
  
 ```
 
+## Benchmark 2 (a practical use case)
+
+The aim of this test is to go simulate a practical use case where:
+  *  the message is parsed  
+  *   some data is added, 
+  *   a search is done for a field, 
+  *   and then the message is written back as a String
+
+Because boon does not return clojure data structures the message in practice has to be passed
+through ```(into {} msg)```, this makes the test extremely un fair to boon. In Java you'd not 
+do this but in clojure assoc will not work without this.
+
+
+### Summary
+
+Summary of the benchmark results are below (in order of faster to slowest).
+
+<table border="0">
+<tr><th>Library</th><th>Mean in sec (lower is better)</th></tr>
+<tr><td>pjson</td><td>1.135400</td>
+<tr><td>clj-json</td><td>4.127988</td>
+<tr><td>boon</td><td>4.535411</td>
+<tr><td>cheshire</td><td>4.994984</td>
+<tr><td>data.json</td><td>16.706526</td>
+</table>
+
+### Details
+
+```
+json-parse-practical
+WARNING: Final GC required 1.1713928545332102 % of runtime
+Goal:  JSON Parse Benchmark - parse all fields and substructures
+-----
+Case:  :clj-json
+Evaluation count : 60 in 60 samples of 1 calls.
+             Execution time mean : 4.127988 sec
+    Execution time std-deviation : 28.549722 ms
+   Execution time lower quantile : 4.082303 sec ( 2.5%)
+   Execution time upper quantile : 4.189088 sec (97.5%)
+                   Overhead used : 1.755672 ns
+
+Found 2 outliers in 60 samples (3.3333 %)
+	low-severe	 2 (3.3333 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Case:  :pjson
+Evaluation count : 60 in 60 samples of 1 calls.
+             Execution time mean : 1.135400 sec
+    Execution time std-deviation : 14.895591 ms
+   Execution time lower quantile : 1.116646 sec ( 2.5%)
+   Execution time upper quantile : 1.176149 sec (97.5%)
+                   Overhead used : 1.755672 ns
+
+Found 5 outliers in 60 samples (8.3333 %)
+	low-severe	 3 (5.0000 %)
+	low-mild	 2 (3.3333 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Case:  :data.json
+Evaluation count : 60 in 60 samples of 1 calls.
+             Execution time mean : 16.706526 sec
+    Execution time std-deviation : 292.721635 ms
+   Execution time lower quantile : 16.468889 sec ( 2.5%)
+   Execution time upper quantile : 17.474864 sec (97.5%)
+                   Overhead used : 1.755672 ns
+
+Found 9 outliers in 60 samples (15.0000 %)
+	low-severe	 1 (1.6667 %)
+	low-mild	 8 (13.3333 %)
+ Variance from outliers : 6.2897 % Variance is slightly inflated by outliers
+
+Case:  :cheshire
+Evaluation count : 60 in 60 samples of 1 calls.
+             Execution time mean : 4.994984 sec
+    Execution time std-deviation : 40.385742 ms
+   Execution time lower quantile : 4.924484 sec ( 2.5%)
+   Execution time upper quantile : 5.104087 sec (97.5%)
+                   Overhead used : 1.755672 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 3 (5.0000 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+Case:  :boon
+Evaluation count : 60 in 60 samples of 1 calls.
+             Execution time mean : 4.535411 sec
+    Execution time std-deviation : 54.404225 ms
+   Execution time lower quantile : 4.469014 sec ( 2.5%)
+   Execution time upper quantile : 4.684311 sec (97.5%)
+                   Overhead used : 1.755672 ns
+
+Found 3 outliers in 60 samples (5.0000 %)
+	low-severe	 3 (5.0000 %)
+ Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+```
+
+## Benchmark 3 (read all fields)
+
+This benchmark tests the worst case scenario where every single field in the json message is accessed.  
+It is more fair to the other libraries because it cuts out lazyness, but in practice you will very rarely need  
+to read every single field in a message
+
+### Summary
+
+Summary of the benchmark results are below (in order of faster to slowest).
+
+<table border="0">
+<tr><th>Library</th><th>Mean in sec (lower is better)</th></tr>
+<tr><td>pjson</td><td>39.179730</td>
+<tr><td>clj-json</td><td>42.278706</td>
+<tr><td>boon</td><td>43.357499</td>
+<tr><td>cheshire</td><td>42.952619</td>
+<tr><td>data.json</td><td>50.198882</td>
+</table>
+
+
+ 
 ## Gratitude
 
 This library could not have been written without the wonderful work done on the json boon library already.
 
 It has shown me how to use Unsafe to create String(s) really fast, and where appropriate I've shamelessly copied.
+
+#Contribute
+
+Its impossible to create the perfect bug free library. So feel free if you have an improvement, bug fix or idea  
+to open a Git Issue and or send me a Pull Request.
+
+Github sometimes is not great for notifying when a new Issue has been made, so if I do not respond please ping me  
+on my mail below :)
 
 # License
 

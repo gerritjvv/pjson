@@ -583,7 +583,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
 
         @Override
-        public String toString() {
+        public final String toString() {
             StringBuilder buff = new StringBuilder((count() * 4) + 2);
             toString(buff);
             return buff.toString();
@@ -595,7 +595,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
 
         @Override
-        public void toString(StringBuilder buff) {
+        public final void toString(StringBuilder buff) {
             int count = count();
             buff.append('[');
             if (count > 0) {

@@ -5,6 +5,11 @@ import java.nio.charset.Charset;
 /**
  * Fast simple json parser.<br/>
  * The code is ugly but the aim is performance.
+ *
+ * @TODO Test parse messages with escape characters
+ * @TODO test assoc then asString on maps and vectors
+ * @TODO test LazyMap and LazyVector
+ * @TODO Test JSONAssociative structures
  */
 public final class PJSON {
 
@@ -212,11 +217,13 @@ public final class PJSON {
                             parseInt(bts, idx, endIndex, events);
                             idx = endIndex-1;
                         }
-                    }
-                    else if(bt == 't' || bt == 'T'){
+                    }else if(bt == 'n') {
+                        events.string(null);
+                        idx += 4;
+                    }else if(bt == 't'){
                         events.number(Boolean.TRUE);
                         idx += 4;
-                    }else if(bt == 'f' || bt == 'F'){
+                    }else if(bt == 'f'){
                         events.number(Boolean.FALSE);
                         idx += 5;
                     }else if(bt == '{'){

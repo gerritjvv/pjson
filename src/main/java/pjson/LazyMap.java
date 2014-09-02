@@ -22,12 +22,24 @@ public class LazyMap extends APersistentMap implements ToJSONString {
         this.len = len;
     }
 
+    public final int jsonFrom(){
+        return from;
+    }
+
+    public final int jsonLen(){
+        return len;
+    }
+
     private final void realize(){
         if(!realized.getAndSet(true)){
             DefaultListener listener = new DefaultListener();
-            PJSON.parse(json, from, from+len, listener);
+            PJSON.lazyParse(json, from, from+len, listener);
             map = (APersistentMap)listener.getValue();
         }
+    }
+
+    public final char[] json(){
+        return json;
     }
 
     @Override

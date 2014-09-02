@@ -46,6 +46,18 @@ public final class CharArrayTool {
         return i;
     }
 
+    /**
+     * This method makes the assumption that in a json string value the "[", "]", "{", and "}" characters will never be present,
+     * e.g "{\"a\": \"{ \"}" will not work.<br/>
+     * If they are the wrong index will be returned.<br/>
+     * In practice these characters are rarely present inside json strings.
+     * @param data char array
+     * @param offset
+     * @param end
+     * @param openChar either '[' or '{'
+     * @param closingChar either ']' or '}'
+     * @return the next index after the closingChar
+     */
     public static final int indexOfEndOfObject(char[] data, int offset, int end, char openChar, char closingChar){
         int i;
         int level = 0;
@@ -63,6 +75,7 @@ public final class CharArrayTool {
         }
         return i;
     }
+
 
     public static final int skipWhiteSpace(char[] data, int offset, int end){
         int i;

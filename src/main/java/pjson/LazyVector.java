@@ -20,10 +20,22 @@ public class LazyVector extends APersistentVector implements ToJSONString{
         this.len = len;
     }
 
+    public final char[] json(){
+        return json;
+    }
+
+    public final int jsonFrom(){
+        return from;
+    }
+
+    public final int jsonLen(){
+        return len;
+    }
+
     private final void realized(){
         if(!realized.getAndSet(true)){
             DefaultListener listener = new DefaultListener();
-            PJSON.parse(json, from, from+len, listener);
+            PJSON.lazyParse(json, from, from+len, listener);
             v = (APersistentVector)listener.getValue();
         }
     }
