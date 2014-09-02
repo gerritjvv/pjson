@@ -50,8 +50,15 @@ the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
 
 ## Charsets and language encodings
 
+<<<<<<< HEAD
 The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).  
 To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.  
+=======
+
+The fastest Charset is used which is the "ISO-8859-1" charset (optimized in java 1.7).
+To use different language encodings please see the ```pjson.core/bts->lazy->json``` functions.
+
+>>>>>>> d2693395e92c4a57f7bc627b3a67ebc6f44ac41b
 
 ## Usage
 
@@ -109,19 +116,19 @@ System.out.println(obj);
 
 ```
 
-## Benchmark 1 (Lazy minimum parsing)
-
-The aim is to see how fast I can pass a message to a library,   
-do the bare minimum parsing and return back a result.  
-This benchmark is not fair to the non lazy libraries but does show a practical example where in practice you almost never acess 100% of a message.  
-
-I'll release some more benchmarks that show different use cases.  
+#Benchmarks 
 
 To run your own benchmarks use ```lein perforate```.  
 The run takes some time, you might want to comment out the slower ones to speed up the process.  
 
 Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"  
 
+
+## Benchmark 1 (Lazy minimum parsing)
+
+The aim is to see how fast I can pass a message to a library,   
+do the bare minimum parsing and return back a result.  
+This benchmark is not fair to the non lazy libraries but does show a practical example where in practice you almost never access 100% of a message.  
 
 ### Summary
 
@@ -319,7 +326,6 @@ Summary of the benchmark results are below (in order of faster to slowest).
 <tr><td>cheshire</td><td>42.952619</td>
 <tr><td>data.json</td><td>50.198882</td>
 </table>
-
 
  
 ## Gratitude
