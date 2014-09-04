@@ -251,7 +251,10 @@ Summary of the benchmark results are below (in order of faster to slowest).
 </table>
 
 
-#Benchmark 4 (JSON Encode Simple)
+##Benchmark 4 (JSON Encode Simple)
+
+
+### Summary
 
 This benchmarks reads the message using each API's decode/parse functions and then without edits  
 encodes the message back to json.  
@@ -270,9 +273,9 @@ Summary of the benchmark results are below (in order of faster to slowest).
 <tr><td>data.json</td><td>7987.892</td>
 </table>
 
-#Benchmark 4 (JSON Encode Map)
+##Benchmark 5 (JSON Encode Map)
 
-#JSON Encode Map
+### Summary
 
 This benchmarks aims to test encoding speed from standard clojure/java data structures.  
 The test message is parsed with clj-json which does this without any lazy intermediates.  
