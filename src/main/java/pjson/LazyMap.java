@@ -112,9 +112,8 @@ public class LazyMap extends APersistentMap implements ToJSONString {
         return StringUtil.fastToString(json, from, len);
     }
 
-    @Override
-    public void toString(StringBuilder buff) {
-        buff.append(json, from, len);
+    public void toString(JSONWriter buff) {
+        buff.writeString(json, from, len);
     }
 }
 

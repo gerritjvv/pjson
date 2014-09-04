@@ -223,82 +223,13 @@ Summary of the benchmark results are below (in order of faster to slowest).
 
 <table border="0">
 <tr><th>Library</th><th>Mean in sec (lower is better)</th></tr>
-<tr><td>pjson</td><td>1.135400</td>
+<tr><td>pjson</td><td>986.215890</td>
 <tr><td>clj-json</td><td>4.127988</td>
 <tr><td>boon</td><td>4.535411</td>
 <tr><td>cheshire</td><td>4.994984</td>
 <tr><td>data.json</td><td>16.706526</td>
 </table>
 
-### Details
-
-```
-json-parse-practical
-WARNING: Final GC required 1.1713928545332102 % of runtime
-Goal:  JSON Parse Benchmark - parse all fields and substructures
------
-Case:  :clj-json
-Evaluation count : 60 in 60 samples of 1 calls.
-             Execution time mean : 4.127988 sec
-    Execution time std-deviation : 28.549722 ms
-   Execution time lower quantile : 4.082303 sec ( 2.5%)
-   Execution time upper quantile : 4.189088 sec (97.5%)
-                   Overhead used : 1.755672 ns
-
-Found 2 outliers in 60 samples (3.3333 %)
-	low-severe	 2 (3.3333 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-
-Case:  :pjson
-Evaluation count : 60 in 60 samples of 1 calls.
-             Execution time mean : 1.135400 sec
-    Execution time std-deviation : 14.895591 ms
-   Execution time lower quantile : 1.116646 sec ( 2.5%)
-   Execution time upper quantile : 1.176149 sec (97.5%)
-                   Overhead used : 1.755672 ns
-
-Found 5 outliers in 60 samples (8.3333 %)
-	low-severe	 3 (5.0000 %)
-	low-mild	 2 (3.3333 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-
-Case:  :data.json
-Evaluation count : 60 in 60 samples of 1 calls.
-             Execution time mean : 16.706526 sec
-    Execution time std-deviation : 292.721635 ms
-   Execution time lower quantile : 16.468889 sec ( 2.5%)
-   Execution time upper quantile : 17.474864 sec (97.5%)
-                   Overhead used : 1.755672 ns
-
-Found 9 outliers in 60 samples (15.0000 %)
-	low-severe	 1 (1.6667 %)
-	low-mild	 8 (13.3333 %)
- Variance from outliers : 6.2897 % Variance is slightly inflated by outliers
-
-Case:  :cheshire
-Evaluation count : 60 in 60 samples of 1 calls.
-             Execution time mean : 4.994984 sec
-    Execution time std-deviation : 40.385742 ms
-   Execution time lower quantile : 4.924484 sec ( 2.5%)
-   Execution time upper quantile : 5.104087 sec (97.5%)
-                   Overhead used : 1.755672 ns
-
-Found 3 outliers in 60 samples (5.0000 %)
-	low-severe	 3 (5.0000 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-
-Case:  :boon
-Evaluation count : 60 in 60 samples of 1 calls.
-             Execution time mean : 4.535411 sec
-    Execution time std-deviation : 54.404225 ms
-   Execution time lower quantile : 4.469014 sec ( 2.5%)
-   Execution time upper quantile : 4.684311 sec (97.5%)
-                   Overhead used : 1.755672 ns
-
-Found 3 outliers in 60 samples (5.0000 %)
-	low-severe	 3 (5.0000 %)
- Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
-```
 
 ## Benchmark 3 (read all fields)
 
@@ -317,6 +248,44 @@ Summary of the benchmark results are below (in order of faster to slowest).
 <tr><td>boon</td><td>43.357499</td>
 <tr><td>cheshire</td><td>42.952619</td>
 <tr><td>data.json</td><td>50.198882</td>
+</table>
+
+
+#Benchmark 4 (JSON Encode Simple)
+
+This benchmarks reads the message using each API's decode/parse functions and then without edits  
+encodes the message back to json.  
+
+Note: pjson can remember the original json message for sub messages, such that if no edits were made the messages' 
+original json string is written back.  
+
+Summary of the benchmark results are below (in order of faster to slowest).  
+
+<table border="0">
+<tr><th>Library</th><th>Mean in ms (lower is better)</th></tr>
+<tr><td>pjson</td><td>255.363232</td>
+<tr><td>clj-json</td><td>927.270765</td>
+<tr><td>boon</td><td>1056.440</td>
+<tr><td>cheshire</td><td>1846.539</td>
+<tr><td>data.json</td><td>7987.892</td>
+</table>
+
+#Benchmark 4 (JSON Encode Map)
+
+#JSON Encode Map
+
+This benchmarks aims to test encoding speed from standard clojure/java data structures.  
+The test message is parsed with clj-json which does this without any lazy intermediates.  
+
+Summary of the benchmark results are below (in order of faster to slowest).  
+
+<table border="0">
+<tr><th>Library</th><th>Mean in ms (lower is better)</th></tr>
+<tr><td>pjson</td><td>686.595274</td>
+<tr><td>clj-json</td><td>931.659699</td>
+<tr><td>boon</td><td>6229.864</td>
+<tr><td>cheshire</td><td>1815.776</td>
+<tr><td>data.json</td><td>7965.589</td>
 </table>
 
  

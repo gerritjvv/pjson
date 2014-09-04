@@ -2,6 +2,7 @@ package pjson;
 
 import clojure.lang.*;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -130,26 +131,30 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
     @Override
     public final String toString() {
-        StringBuilder buff = new StringBuilder();
-        toString(buff);
-        return buff.toString();
+        JSONWriter writer = new JSONWriter.StringBuilderWriter();
+        toString(writer);
+        return writer.toString();
     }
 
-    public final void toString(StringBuilder buff) {
-        buff.append('{');
-        final int len2 = len - 2;
-        for (int i = 0; i < len; i += 2) {
-            Object k = arr[i];
-            StringUtil.toJSONString(buff, k);
+    public final void toString(JSONWriter writer) {
+        try{
+            writer.startObj();
+            final int len2 = len - 2;
+            for (int i = 0; i < len; i += 2) {
+                if(i != 0)
+                    writer.writeComma();;
 
-            buff.append(':');
+                Object k = arr[i];
+                writer.writeFieldName(k.toString());
 
-            Object v = arr[i + 1];
-            StringUtil.toJSONString(buff, v);
-            if (i < len2)
-                buff.append(",");
+                Object v = arr[i + 1];
+                JSONGenerator.forObj(writer, v);
+            }
+            writer.endObj();
+
+        }catch(IOException e){
+
         }
-        buff.append('}');
     }
 
     @Override
@@ -289,14 +294,16 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
         @Override
         public String toString() {
-            StringBuilder buff = new StringBuilder();
-            buff.append('[');
-            StringUtil.toJSONString(buff, key);
-            buff.append(',');
-            StringUtil.toJSONString(buff, val);
-            buff.append(']');
-
-            return buff.toString();
+            JSONWriter writer = new JSONWriter.StringBuilderWriter();
+                writer.startArr();
+                writer.writeString(key.toString());
+                try {
+                    JSONGenerator.forObj(writer, val);
+                }catch(IOException e){
+                    throw new RuntimeException(e);
+                }
+                writer.endArr();
+            return writer.toString();
         }
     }
 
@@ -504,31 +511,29 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         @Override
         public final String toString() {
             if (json == null) {
-                StringBuilder buff = new StringBuilder((len * 4) + 2);
-                toString(buff);
-                return buff.toString();
+                JSONWriter writer = new JSONWriter.StringBuilderWriter();
+                toString(writer);
+                return writer.toString();
             } else
                 return json;
         }
 
         @Override
-        public final void toString(StringBuilder buff) {
-            if (json == null) {
-                if (len > 0) {
-                    buff.append('[');
-                    StringUtil.toJSONString(buff, arr[0]);
-
-                    for (int i = 1; i < len; i++) {
-                        buff.append(',');
-                        StringUtil.toJSONString(buff, arr[i]);
+        public final void toString(JSONWriter buff) {
+            try{
+                if (json == null) {
+                    buff.startArr();
+                    for(int i = 0; i < len; i++){
+                        if(i != 0)
+                            buff.writeComma();
+                        JSONGenerator.forObj(buff, arr[i]);
                     }
-
-                    buff.append(']');
+                    buff.endArr();
                 } else {
-                    buff.append("[]");
+                    buff.writeString(json);
                 }
-            } else {
-                buff.append(json);
+            }catch (IOException e){
+                throw new RuntimeException(e);
             }
         }
     }
@@ -584,9 +589,9 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
         @Override
         public final String toString() {
-            StringBuilder buff = new StringBuilder((count() * 4) + 2);
-            toString(buff);
-            return buff.toString();
+            JSONWriter writer = new JSONWriter.StringBuilderWriter();
+            toString(writer);
+            return writer.toString();
         }
 
         @Override
@@ -595,19 +600,19 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
 
         @Override
-        public final void toString(StringBuilder buff) {
-            int count = count();
-            buff.append('[');
-            if (count > 0) {
-                StringUtil.toJSONString(buff, vector.arr[i]);
-                if (count > 1) {
-                    for (int a = i + 1; a < vector.count(); a++) {
-                        buff.append(',');
-                        StringUtil.toJSONString(buff, vector.arr[a]);
-                    }
+        public final void toString(JSONWriter buff) {
+            try{
+                int count = count();
+                buff.startArr();
+                for(int a = i; a < count; a++){
+                    if(a != 0)
+                        buff.writeComma();
+                    JSONGenerator.forObj(buff, vector.get(a));
                 }
+                buff.endArr();
+            }catch(IOException e){
+                throw new RuntimeException(e);
             }
-            buff.append(']');
         }
     }
 

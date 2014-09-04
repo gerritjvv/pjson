@@ -1,5 +1,5 @@
 (ns pjson.core
-  (:import [pjson PJSON StringUtil JSONAssociative ToJSONString]
+  (:import [pjson PJSON StringUtil JSONAssociative ToJSONString JSONGenerator]
            (java.nio.charset Charset)
            (java.util Map Collection)
            (clojure.lang Seqable IPersistentMap))
@@ -77,16 +77,16 @@
     (.toString this))
   IPersistentMap
   (write-str [^IPersistentMap this]
-    (StringUtil/toJSONString this))
+    (JSONGenerator/forObj this))
   Map
   (write-str [^Map this]
-    (StringUtil/toJSONString this))
+    (JSONGenerator/forObj this))
   Collection
   (write-str [^Collection this]
-    (StringUtil/toJSONString this))
+    (JSONGenerator/forObj this))
   Seqable
   (write-str [^Seqable this]
-    (StringUtil/toJSONString this))
+    (JSONGenerator/forObj this))
   Object
   (write-str [^Object this]
-    (StringUtil/toJSONString this)))
+    (JSONGenerator/forObj this)))
