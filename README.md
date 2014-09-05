@@ -222,12 +222,12 @@ do this but in clojure assoc will not work without this.
 Summary of the benchmark results are below (in order of faster to slowest).
 
 <table border="0">
-<tr><th>Library</th><th>Mean in sec (lower is better)</th></tr>
+<tr><th>Library</th><th>Mean in ms (lower is better)</th></tr>
 <tr><td>pjson</td><td>986.215890</td>
-<tr><td>clj-json</td><td>4.127988</td>
-<tr><td>boon</td><td>4.535411</td>
-<tr><td>cheshire</td><td>4.994984</td>
-<tr><td>data.json</td><td>16.706526</td>
+<tr><td>clj-json</td><td>4127.988</td>
+<tr><td>boon</td><td>4535.411</td>
+<tr><td>cheshire</td><td>4994.984</td>
+<tr><td>data.json</td><td>16706.526</td>
 </table>
 
 
