@@ -5,11 +5,11 @@
 
 
 (deftest test-string-escaping
-  (let [test-str "\"mystring\""]
-    (is (= (CharArrayTool/endOfString (char-array test-str) 0 (count test-str)) 9)))
+  (let [test-str "[\"mystring\"]"]
+    (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 10)))
 
-  (let [test-str "\"mystri\\\"ng\""]
-    (is (= (CharArrayTool/endOfString (char-array test-str) 0 (count test-str)) 11)))
+  (let [test-str "[\"mystri\\\"ng\"]"]
+    (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 12)))
 
   (is (=
         (-> "{\"a\":\"1 \\\"  \"}"

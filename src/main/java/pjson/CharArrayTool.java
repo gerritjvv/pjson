@@ -31,7 +31,8 @@ public final class CharArrayTool {
         final int len = data.length;
         int i;
         for(i = offset; i < end; i++){
-            if(data[i] == '"' && i != 0 && data[i-1] != '\\')
+            //we do not need to check to i != 0 because any string will always be within an object or vector
+            if(data[i] == '"' && data[i-1] != '\\')
                 return i;
         }
         return i;
