@@ -21,6 +21,7 @@ All data returned are clojure persistent data structures that can be used with a
     e.g ```{"a": "a \{"}``` cannot be parsed.
 *   The data is correct JSON data.
 *   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down.
+*   Data always come in Maps or Vectors i.e [] or {} (this tends to be the case 99% of the time).
 
 ### Tradeoffs
 
