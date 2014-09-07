@@ -8,4 +8,4 @@
   (is (=
         (-> "{\"a\":\"1 \\\"  \"}"
             asObj asString asObj asString asObj)
-        {"a" "1 \\"})))
+        {"a" "1 \\\"  "})))
