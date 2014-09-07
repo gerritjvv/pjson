@@ -406,7 +406,10 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
                     }
                     return true;
                 }
+            }else{
+                return super.equiv(o);
             }
+
             return false;
         }
 
