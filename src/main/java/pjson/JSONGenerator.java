@@ -165,9 +165,9 @@ public final class JSONGenerator {
     private final static String convertFieldName(Object key) {
         if (key instanceof String)
             return (String) key;
-        else if (key instanceof Named){
+        else if (key instanceof Named)
             return ((Named) key).getName();
-        }else
+        else
             return key.toString();
     }
 
