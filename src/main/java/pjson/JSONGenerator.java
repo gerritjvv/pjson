@@ -44,6 +44,12 @@ public final class JSONGenerator {
             } else if (obj instanceof Named) {
                 //support keywords and symbols
                 writer.writeString(((Named) obj).getName());
+            } else if (obj instanceof Boolean) {
+                if ((Boolean) obj){
+                    writer.writeTrue();
+                }else{
+                    writer.writeFalse();
+                }
             } else if (obj instanceof Integer) {
                 writer.writeInt((Integer) obj);
             } else if (obj instanceof Long) {
@@ -85,7 +91,7 @@ public final class JSONGenerator {
                         if (((Counter) state).i++ != 0)
                             writer.writeComma();
 
-                        writer.writeFieldName(convertFieldName(key.toString()));
+                        writer.writeFieldName(convertFieldName(key));
 
                         try {
                             JSONGenerator.forObj(writer, val);
