@@ -51,10 +51,10 @@ public final class PJSON {
      * @param start start offset
      * @param end the end index
      * @param events JSONListener, all events will be sent to this instance.
+     * @Deprecated use lazy parse
      */
     public static final int parse(final char[] bts, final int start, final int end, final JSONListener events){
         final int btsLen = end;
-        boolean inString = false;
         char bt;
         int i;
 
@@ -99,10 +99,10 @@ public final class PJSON {
                     }
                     else if(bt == 't' || bt == 'T'){
                         events.number(Boolean.TRUE);
-                        idx += 4;
+                        idx += 3; //add 3 we are already at T
                     }else if(bt == 'f' || bt == 'F'){
                         events.number(Boolean.FALSE);
-                        idx += 5;
+                        idx += 4; //add 4 we are already at F
                     }else if(bt == '{' || bt == '[') {
                         idx = parse(bts, idx, btsLen, events);
                     }
@@ -144,10 +144,10 @@ public final class PJSON {
                     }
                     else if(bt == 't' || bt == 'T'){
                         events.number(Boolean.TRUE);
-                        idx += 4;
+                        idx += 3; //add 3 we are already at T
                     }else if(bt == 'f' || bt == 'F'){
                         events.number(Boolean.FALSE);
-                        idx += 5;
+                        idx += 4; //add 4 we are already at F
                     }else if(bt == '{' || bt == '[') {
                         idx = parse(bts, idx, btsLen, events);
                     }
@@ -171,7 +171,6 @@ public final class PJSON {
      */
     public static final int lazyParse(final char[] bts, final int start, final int end, final JSONListener events){
         final int btsLen = end;
-        boolean inString = false;
         char bt;
         int i;
 
@@ -219,13 +218,13 @@ public final class PJSON {
                         }
                     }else if(bt == 'n') {
                         events.string(null);
-                        idx += 4;
+                        idx += 3; //add 3 we are already at n
                     }else if(bt == 't'){
                         events.number(Boolean.TRUE);
-                        idx += 4;
+                        idx += 3; //add 3 we are already at T
                     }else if(bt == 'f'){
                         events.number(Boolean.FALSE);
-                        idx += 5;
+                        idx += 4; ////add 4 we are already at F
                     }else if(bt == '{'){
                         int endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
                         events.lazyObject(bts, idx, endIndex);
@@ -269,13 +268,15 @@ public final class PJSON {
                             parseInt(bts, idx, endIndex, events);
                             idx = endIndex-1;
                         }
-                    }
-                    else if(bt == 't' || bt == 'T'){
+                    }else if(bt == 'n') {
+                        events.string(null);
+                        idx += 3; //add 3 we are already at n
+                    }else if(bt == 't' || bt == 'T'){
                         events.number(Boolean.TRUE);
-                        idx += 4;
+                        idx += 3; //add 3 we are already at T
                     }else if(bt == 'f' || bt == 'F'){
                         events.number(Boolean.FALSE);
-                        idx += 5;
+                        idx += 4; //add 4 we are already at F
                     }else if(bt == '{') {
                         int endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
                         events.lazyObject(bts, idx, endIndex);
