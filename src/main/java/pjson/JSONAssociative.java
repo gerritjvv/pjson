@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  */
-public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed {
+public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed, Counted {
     final private Object[] arr;
     final int len;
 
@@ -258,7 +258,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
     }
 
-    public final static class JSONIMapEntry implements IMapEntry, Map.Entry {
+    public final static class JSONIMapEntry extends AMapEntry implements IMapEntry, Map.Entry {
 
         private final Object key, val;
 
@@ -292,6 +292,10 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
             throw new RuntimeException("setValue is not supported");
         }
 
+        public Object first(){
+            return key;
+        }
+
         @Override
         public String toString() {
             JSONWriter writer = new JSONWriter.StringBuilderWriter();
@@ -307,7 +311,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
     }
 
-    private static final class Iter implements Iterator {
+    private static final class Iter implements Iterator, Counted {
         Object[] arr;
         int i;
         int len;
@@ -316,6 +320,11 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
             this.arr = arr;
             this.i = i - 2;
             this.len = len;
+        }
+
+        @Override
+        public final int count(){
+            return (int)((i - len)/2);
         }
 
         @Override
@@ -336,7 +345,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
     }
 
-    public static final class JSONVector extends APersistentVector implements ToJSONString {
+    public static final class JSONVector extends APersistentVector implements ToJSONString, Counted {
 
         final String json;
         final Object[] arr;
@@ -350,6 +359,11 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
         public JSONVector(Object[] arr, int len) {
             this(null, arr, len);
+        }
+
+        @Override
+        public int count(){
+            return length();
         }
 
         @Override
@@ -372,11 +386,6 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
             } else {
                 return cons(val);
             }
-        }
-
-        @Override
-        public int count() {
-            return len;
         }
 
         @Override
@@ -541,7 +550,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
     }
 
-    public static final class VectorSeq extends ASeq implements Indexed, ToJSONString {
+    public static final class VectorSeq extends ASeq implements Indexed, ToJSONString, Counted {
 
         final JSONVector vector;
         final int i;
