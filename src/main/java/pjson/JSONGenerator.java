@@ -3,10 +3,7 @@ package pjson;
 import clojure.lang.*;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * (import 'pjson.JSONGenerator)
@@ -60,7 +57,7 @@ public final class JSONGenerator {
                 writer.writeFloat((Float) obj);
             } else if (obj instanceof ToJSONString) {
                 ((ToJSONString) obj).toString(writer);
-            } else if (obj instanceof PersistentArrayMap) {
+            }else if (obj instanceof PersistentArrayMap) {
                 writer.startObj();
                 final PersistentArrayMap map = (PersistentArrayMap) obj;
 
