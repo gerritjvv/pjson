@@ -69,7 +69,7 @@ The fastest Charset is used by default which is the "ISO-8859-1" charset (optimi
 
 (def v (read-str "[1, 2, 3]"))
 ;;converts a String to a JSON object {} converts to Maps and [] converts to Vectors
-(type m)
+(type v)
 ;;pjson.JSONAssociative$JSONVector
 [(instance? java.util.Collection v) (instance? clojure.lang.IPersistentVector v) (vector? v)]
 ;;[true true true]
