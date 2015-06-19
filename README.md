@@ -138,6 +138,8 @@ Summary of the benchmark results are below (in order of faster to slowest).
 
 ### Details
 
+See https://github.com/gerritjvv/pjson/blob/master/benchmarks.md
+
 ```
 Goal:  JSON Parse Benchmark
 -----

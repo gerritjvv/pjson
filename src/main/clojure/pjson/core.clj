@@ -25,15 +25,6 @@
 (defn get-charset [n]
   (Charset/forName (str n)))
 
-(defn- bts->json
-  ([^"[B" bts]
-   (bts->json DEFAULT_CHARSET bts))
-  ([^Charset charset ^"[B" bts]
-   (PJSON/defaultParse charset bts))
-  ([^Charset charset ^"[B" bts ^Long from ^Long len]
-   ;defaultParse(final Charset charset, final byte[] bts, final int start, final int len)
-   (PJSON/defaultParse charset bts (int from) (int len))))
-
 (defn- bts->lazy-json
   ([^"[B" bts]
    (bts->lazy-json DEFAULT_CHARSET bts))

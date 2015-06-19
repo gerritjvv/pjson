@@ -10,7 +10,7 @@ public class Examples {
 
         byte[] msg_bts = "{\":a\": 1}".getBytes();
 
-        Map<Object, Object> obj = (Map<Object, Object>) PJSON.defaultParse(StringUtil.DEFAULT_CHAR_SET, msg_bts);
+        Map<Object, Object> obj = (Map<Object, Object>) PJSON.defaultLazyParse(StringUtil.DEFAULT_CHAR_SET, msg_bts);
         System.out.println(obj);
     }
 

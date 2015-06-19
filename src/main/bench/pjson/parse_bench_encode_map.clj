@@ -10,37 +10,35 @@
 
 ;;Test message encoding from a clojure map instance, i.e no lazy constructs or anything, just raw encoding speed.
 
+(defonce iter 1000)
 (defgoal json-parse-encode-map "JSON Encode Map Benchmark"
          :setup (fn []
                     [(-> "test-resources/msg.json" slurp cheshire/parse-string)]))
 
 (defcase json-parse-encode-map :pjson
          [msg]
-         (dotimes [i 100000]
+         (dotimes [i iter]
                   (write-str msg)))
 
 (defcase json-parse-encode-map :clj-json
          [msg]
-         (dotimes [i 100000]
+         (dotimes [i iter]
                   (clj-json/generate-string msg)))
 
 (defcase json-parse-encode-map :boon
          [msg]
-         (dotimes [i 100000]
+         (dotimes [i iter]
                   (JsonFactory/toJson msg)))
 
 
 (defcase json-parse-encode-map :data.json
          [msg]
-         (dotimes [i 100000]
+         (dotimes [i iter]
                   (data-json/write-str msg)))
 
 
 
 (defcase json-parse-encode-map :cheshire
          [msg]
-         (dotimes [i 100000]
+         (dotimes [i iter]
                   (cheshire/generate-string msg)))
-(comment
-
-  )
