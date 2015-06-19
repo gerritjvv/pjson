@@ -104,7 +104,7 @@ The ```pjson.core``` namespace defines the following single arity functions to a
 byte[] msg_bts = "{\"id\" \"0.0.1.71.105.212.33.205.21.86.123.210.94.161.24.1.3\", \"uuid\" 5090315992110618240, \"id2\" 11, \"ts\" 1406229815757, \"type\" 1, \"anothertype\" \"null\", \"events\" {\"info\" {\"id\" 770128}, \"id2\" 3, \"events\" {\"id\" 930415460}, \"timestamp\" 1406229815757}, \"size\" 5, \"slots\" 1, \"geo\" {\"city\" 9065607, \"country\" 59, \"state\" 162, \"zip\" 121397}}".getBytes();
 
 //if the message starts with an object we can cast to a Map, arrays are of type List.
-Map<Object, Object> obj = (Map<Object, Object>) PJSON.defaultParse(StringUtil.DEFAULT_CHAR_SET, msg_bts);
+Map<Object, Object> obj = (Map<Object, Object>) PJSON.defaultLazyParse(StringUtil.DEFAULT_CHAR_SET, msg_bts);
 System.out.println(obj);
 
 ```
@@ -116,6 +116,8 @@ The run takes some time, you might want to comment out the slower ones to speed 
 
 Using criterium and JVM 1.7 b60 and Charset "ISO-8859-1"  
 
+
+See [https://github.com/gerritjvv/pjson/blob/master/benchmarks.md]
 
 ## Benchmark 1 (Lazy minimum parsing)
 
@@ -137,8 +139,6 @@ Summary of the benchmark results are below (in order of faster to slowest).
 </table>
 
 ### Details
-
-See https://github.com/gerritjvv/pjson/blob/master/benchmarks.md
 
 ```
 Goal:  JSON Parse Benchmark
