@@ -204,8 +204,53 @@ public final class PJSON {
     }
 
     private static final void parseInt(char[] bts, int offset, int end, JSONListener events){
-        final String str = StringUtil.fastToString(bts, offset, end-offset);
-        events.number(Long.valueOf(str));
+        int len = end-offset;
+        long l;
+
+        switch(len){
+            case 1:
+                l = NumberUtil.parse_1(bts, offset); break;
+            case 2:
+                l = NumberUtil.parse_2(bts, offset); break;
+            case 3:
+                l = NumberUtil.parse_3(bts, offset); break;
+            case 4:
+                l = NumberUtil.parse_4(bts, offset); break;
+            case 5:
+                l = NumberUtil.parse_5(bts, offset); break;
+            case 6:
+                l = NumberUtil.parse_6(bts, offset); break;
+            case 7:
+                l = NumberUtil.parse_7(bts, offset); break;
+            case 8:
+                l = NumberUtil.parse_8(bts, offset); break;
+            case 9:
+                l = NumberUtil.parse_9(bts, offset); break;
+            case 10:
+                l = NumberUtil.parse_10(bts, offset); break;
+            case 11:
+                l = NumberUtil.parse_11(bts, offset); break;
+            case 12:
+                l = NumberUtil.parse_12(bts, offset); break;
+            case 13:
+                l = NumberUtil.parse_13(bts, offset); break;
+            case 14:
+                l = NumberUtil.parse_14(bts, offset); break;
+            case 15:
+                l = NumberUtil.parse_15(bts, offset); break;
+            case 16:
+                l = NumberUtil.parse_16(bts, offset); break;
+            case 17:
+                l = NumberUtil.parse_17(bts, offset); break;
+            case 18:
+                l = NumberUtil.parse_18(bts, offset); break;
+            case 19:
+                l = NumberUtil.parse_19(bts, offset); break;
+            default:
+                throw new NumberFormatException("Number out of range " + StringUtil.fastToString(bts, offset, end-offset));
+        }
+
+        events.number(new Long(l));
     }
 
     private static final void parseDouble(char[] bts, int offset, int end, JSONListener events){
