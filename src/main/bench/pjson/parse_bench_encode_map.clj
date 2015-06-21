@@ -9,7 +9,6 @@
   (:use perforate.core))
 
 ;;Test message encoding from a clojure map instance, i.e no lazy constructs or anything, just raw encoding speed.
-
 (defonce iter 1000)
 (defgoal json-parse-encode-map "JSON Encode Map Benchmark"
          :setup (fn []

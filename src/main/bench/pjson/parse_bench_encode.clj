@@ -9,7 +9,6 @@
   (:use perforate.core))
 
 ;;Test message to encoding using for each library the original message as read by the library itself.
-
 (defgoal json-parse-encode "JSON Encode Simple"
          :setup (fn []
                     (let [msg (slurp "test-resources/msg.json")]
