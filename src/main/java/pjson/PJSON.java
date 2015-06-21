@@ -112,6 +112,23 @@ public final class PJSON {
                                 events.lazyArr(bts, idx, endIndex);
                                 idx = endIndex;
                                 break;
+                            case '-':
+                                idx++;
+                                bt = CharArrayTool.getChar(bts, idx);
+                                if(Character.isDigit(bt)) {
+                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
+
+                                    if (bts[endIndex] == '.') {
+                                        idx--;
+                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
+                                        parseDouble(bts, idx, idx2, events);
+                                        idx = idx2 - 1;
+                                    } else {
+                                        parseInt(bts, idx, endIndex, events, true);
+                                        idx = endIndex - 1;
+                                    }
+                                }
+                                break;
                             default:
                                 if(Character.isDigit(bt)) {
                                     endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
@@ -121,7 +138,7 @@ public final class PJSON {
                                         parseDouble(bts, idx, idx2, events);
                                         idx = idx2-1;
                                     }else {
-                                        parseInt(bts, idx, endIndex, events);
+                                        parseInt(bts, idx, endIndex, events, false);
                                         idx = endIndex-1;
                                     }
                                 }
@@ -177,6 +194,23 @@ public final class PJSON {
                                 events.lazyArr(bts, idx, endIndex);
                                 idx = endIndex;
                                 break;
+                            case '-':
+                                idx++;
+                                bt = CharArrayTool.getChar(bts, idx);
+                                if(Character.isDigit(bt)) {
+                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
+
+                                    if (bts[endIndex] == '.') {
+                                        idx--;
+                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
+                                        parseDouble(bts, idx, idx2, events);
+                                        idx = idx2 - 1;
+                                    } else {
+                                        parseInt(bts, idx, endIndex, events, true);
+                                        idx = endIndex - 1;
+                                    }
+                                }
+                                break;
                             default:
                                 if(Character.isDigit(bt)) {
                                     endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
@@ -186,7 +220,7 @@ public final class PJSON {
                                         parseDouble(bts, idx, idx2, events);
                                         idx = idx2 - 1;
                                     } else {
-                                        parseInt(bts, idx, endIndex, events);
+                                        parseInt(bts, idx, endIndex, events, false);
                                         idx = endIndex - 1;
                                     }
                                 }
@@ -203,7 +237,7 @@ public final class PJSON {
         return i;
     }
 
-    private static final void parseInt(char[] bts, int offset, int end, JSONListener events){
+    private static final void parseInt(char[] bts, int offset, int end, JSONListener events, boolean isNeg){
         int len = end-offset;
         long l;
 
@@ -250,7 +284,7 @@ public final class PJSON {
                 throw new NumberFormatException("Number out of range " + StringUtil.fastToString(bts, offset, end-offset));
         }
 
-        events.number(new Long(l));
+        events.number(new Long(isNeg ? l * -1 : l));
     }
 
     private static final void parseDouble(char[] bts, int offset, int end, JSONListener events){
