@@ -2,23 +2,26 @@
      (:import (pjson NumberUtil))
      (:use perforate.core))
 
-(defn number->str [n]
-      (apply str (take n (apply str (take n (range 1 (inc n)))))))
+ (comment
 
-(defonce iter 1000)
-(defgoal number-parse "Number parse Benchmark"
-         :setup (fn [] (let [s (number->str 5)]
-                            [(.toCharArray s) s (count s)])))
+   (defn number->str [n]
+         (apply str (take n (apply str (take n (range 1 (inc n)))))))
 
-
-(defn parse5 [^chars ch]
-      (NumberUtil/parse_5 ch (int 0)))
+   (defonce iter 1000)
+   (defgoal number-parse "Number parse Benchmark"
+            :setup (fn [] (let [s (number->str 5)]
+                               [(.toCharArray s) s (count s)])))
 
 
-(defn valueOf [^String s]
-      (Long/valueOf s))
+   (defn parse5 [^chars ch]
+         (NumberUtil/parse_5 ch (int 0)))
 
 
-(defcase number-parse :number-util-5 [^chars ch s l] (parse5 ch))
+   (defn valueOf [^String s]
+         (Long/valueOf s))
 
-(defcase number-parse :integer [_ ^String s l] (valueOf s))
+
+   (defcase number-parse :number-util-5 [^chars ch s l] (parse5 ch))
+
+   (defcase number-parse :integer [_ ^String s l] (valueOf s))
+   )

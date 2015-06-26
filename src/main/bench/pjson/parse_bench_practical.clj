@@ -54,3 +54,6 @@
          [_ ^String msg]
          (dotimes [i iter]
                   (-> msg cheshire/parse-string do-work cheshire/generate-string)))
+(comment
+
+  )

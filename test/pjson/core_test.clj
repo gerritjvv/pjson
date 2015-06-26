@@ -39,6 +39,9 @@
 
 (deftest test-types-to-string
   (is (equal-after-decode (array-map "a" 1 "b" 2) {"a" 1 "b" 2})) ;test PersistentArrayMap
+  (is (equal-after-decode (array-map "a" -1 "b" -2.1) {"a" -1 "b" -2.1})) ;test negative numbers
+  (is (equal-after-decode (array-map "a" true "b" false) {"a" true "b" false})) ;test boolean
+
   (is (equal-after-decode (hash-map "a" 1 "b" 2) {"a" 1 "b" 2})) ;test PersistentHashMap
   (is (equal-after-decode (vector 1 2 3) [1 2 3]))          ;test PersistentVector
   (is (equal-after-decode (sequence [1 2 3]) [1 2 3]))          ;test Sequence

@@ -17,17 +17,13 @@ All data returned are clojure persistent data structures that can be used with a
 
 ### Assumptions about the data
 
-*   Characters '{' '[' cannot be used in the String values, not even escaped. This in practice happens rarely.
-    e.g ```{"a": "a \{"}``` cannot be parsed.
 *   The data is correct JSON data.
-*   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down.
-*   Data always come in Maps or Vectors i.e [] or {} (this tends to be the case 99% of the time).
+*   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down. Please note that this does not mean that you cannot use other encoding formats, that that they are not the fastest and only affects speed if you translate from bytes to chars, if you already have a String or char array then no extra encoding is done.
 
 ### Tradeoffs
 
 *   sun.misc.Unsafe must be supported on the JVM you use, if you are not using the Oracle JVM please test first.
 *   no format checking is provided.
-*   String data written as json is not checked or escaped in any way. Its assumed that your data is pre-validated for escaped characters.
 
 
 

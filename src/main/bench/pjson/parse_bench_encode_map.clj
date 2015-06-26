@@ -41,3 +41,5 @@
          [msg]
          (dotimes [i iter]
                   (cheshire/generate-string msg)))
+(comment
+  )

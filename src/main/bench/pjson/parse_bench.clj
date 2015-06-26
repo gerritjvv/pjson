@@ -23,18 +23,19 @@
                   (JsonFactory/fromJson msg)))
 
 
-(defcase json-parse :data.json
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (data-json/read-str msg)))
+(comment
+  (defcase json-parse :data.json
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (data-json/read-str msg)))
 
-(defcase json-parse :clj-json
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (clj-json/parse-string msg)))
+  (defcase json-parse :clj-json
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (clj-json/parse-string msg)))
 
 
-(defcase json-parse :cheshire
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (cheshire/parse-string msg)))
+  (defcase json-parse :cheshire
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (cheshire/parse-string msg))))

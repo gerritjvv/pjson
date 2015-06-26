@@ -49,192 +49,123 @@ public final class PJSON {
     public static final int lazyParse(final char[] bts, final int start, final int end, final JSONListener events){
         final int btsLen = end;
         char bt;
-        int i;
 
-        for(i = start; i < btsLen; i++){
+        int idx = CharArrayTool.skipWhiteSpace(bts, start, btsLen);
 
-            bt = CharArrayTool.getChar(bts, i);
-            switch(bt){
-                case '{':
-                    events.objectStart();
+        bt = CharArrayTool.getChar(bts, idx);
 
-                    int strStart = CharArrayTool.indexOf(bts, i+1, end, '"') + 1;
-                    int idx = CharArrayTool.endOfString(bts, strStart, end);
-                    //create string here
-                    if(idx >= btsLen){
-                        events.objectEnd();
-                        return btsLen;
-                    }
-                    events.string(StringUtil.fastToString(bts, strStart, idx - strStart));
-                    idx = CharArrayTool.indexOf(bts, idx+1, end, ':');
+        if(bt == '{'){
+            events.objectStart();
+
+            int strStart = CharArrayTool.indexOf(bts, idx+1, end, '"') + 1;
+            idx = CharArrayTool.endOfString(bts, strStart, end);
+            events.string(StringUtil.fastToString(bts, strStart, idx - strStart));
+            idx = CharArrayTool.indexOf(bts, idx+1, end, ':');
+            idx++;
+
+        }else if(bt == '['){
+            events.arrStart();
+            idx = CharArrayTool.skipWhiteSpace(bts, idx+1, btsLen);
+        }else
+            throw new RuntimeException("Invalid message, expected [/{ found " + bt);
+
+        if(idx >= btsLen){
+            events.objectEnd();
+            return btsLen;
+        }
+
+        int endIndex;
+
+        for(; idx < btsLen; idx++){
+            idx = CharArrayTool.skipWhiteSpace(bts, idx, btsLen);
+            bt = CharArrayTool.getChar(bts, idx);
+
+            switch (bt){
+                case '"': //34
+                    final int strStart2 = idx + 1;
+                    idx = CharArrayTool.endOfString(bts, strStart2, end);
+                    events.string(StringUtil.fastToString(bts, strStart2, idx - strStart2));
+                    break;
+                case '-': //45
                     idx++;
+                    bt = CharArrayTool.getChar(bts, idx);
+                    if(Character.isDigit(bt)) {
+                        endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
 
-                    for(; idx < btsLen; idx++){
-                        idx = CharArrayTool.skipWhiteSpace(bts, idx, btsLen);
-                        bt = CharArrayTool.getChar(bts, idx);
-
-                        switch (bt){
-                            case '}':
-                                events.objectEnd();
-                                break;
-                            case '"':
-                                final int strStart2 = idx + 1;
-                                idx = CharArrayTool.endOfString(bts, strStart2, end);
-                                events.string(StringUtil.fastToString(bts, strStart2, idx - strStart2));
-                                break;
-                            case 'n':
-                                events.string(null);
-                                idx += 3; //add 3 we are already at n
-                                break;
-                            case 't':
-                                events.number(Boolean.TRUE);
-                                idx += 3; //add 3 we are already at T
-                                break;
-                            case 'T':
-                                events.number(Boolean.TRUE);
-                                idx += 3; //add 3 we are already at T
-                                break;
-                            case 'f':
-                                events.number(Boolean.FALSE);
-                                idx += 4; ////add 4 we are already at F
-                                break;
-                            case 'F':
-                                events.number(Boolean.FALSE);
-                                idx += 4; ////add 4 we are already at F
-                                break;
-                            case '{':
-                                int endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
-                                events.lazyObject(bts, idx, endIndex);
-                                idx = endIndex;
-                                break;
-                            case '[':
-                                endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '[', ']');
-                                events.lazyArr(bts, idx, endIndex);
-                                idx = endIndex;
-                                break;
-                            case '-':
-                                idx++;
-                                bt = CharArrayTool.getChar(bts, idx);
-                                if(Character.isDigit(bt)) {
-                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
-
-                                    if (bts[endIndex] == '.') {
-                                        idx--;
-                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
-                                        parseDouble(bts, idx, idx2, events);
-                                        idx = idx2 - 1;
-                                    } else {
-                                        parseInt(bts, idx, endIndex, events, true);
-                                        idx = endIndex - 1;
-                                    }
-                                }
-                                break;
-                            default:
-                                if(Character.isDigit(bt)) {
-                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
-
-                                    if (bts[endIndex] == '.') {
-                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
-                                        parseDouble(bts, idx, idx2, events);
-                                        idx = idx2-1;
-                                    }else {
-                                        parseInt(bts, idx, endIndex, events, false);
-                                        idx = endIndex-1;
-                                    }
-                                }
+                        if (bts[endIndex] == '.') {
+                            idx--;
+                            int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
+                            parseDouble(bts, idx, idx2, events);
+                            idx = idx2 - 1;
+                        } else {
+                            parseInt(bts, idx, endIndex, events, true);
+                            idx = endIndex - 1;
                         }
                     }
+                    break;
+                case 'F': //70
+                    events.number(Boolean.FALSE);
+                    idx += 4; ////add 4 we are already at F
+                    break;
+                case 'T': //84
+                    events.number(Boolean.TRUE);
+                    idx += 3; //add 3 we are already at T
+                    break;
+                case '[': //91
+                    endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '[', ']');
+                    events.lazyArr(bts, idx, endIndex);
+                    idx = endIndex;
+                    break;
+                case 'f': //102
+                    events.number(Boolean.FALSE);
+                    idx += 4; ////add 4 we are already at F
+                    break;
+                case '}':
+                    events.objectEnd();
+                    break;
+                case 'n':
+                    events.string(null);
+                    idx += 3; //add 3 we are already at n
+                    break;
+                case 't':
+                    events.number(Boolean.TRUE);
+                    idx += 3; //add 3 we are already at T
+                    break;
+                case '{':
+                    endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
+                    events.lazyObject(bts, idx, endIndex);
+                    idx = endIndex;
+                    break;
 
-                    return idx;
-                case '[':
-                    events.arrStart();
+                case 48: //0-9 are numbers
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                case 54:
+                case 55:
+                case 56:
+                case 57:
+                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
 
-                    idx = CharArrayTool.skipWhiteSpace(bts, i+1, btsLen);
-
-                    for(; idx < btsLen; idx++){
-                        idx = CharArrayTool.skipWhiteSpace(bts, idx, btsLen);
-                        bt = CharArrayTool.getChar(bts, idx);
-
-                        switch (bt){
-                            case ']':
-                                events.arrEnd();
-                                break;
-                            case '"':
-                                final int strStart2 = idx + 1;
-                                idx = CharArrayTool.endOfString(bts, strStart2, end);
-                                events.string(StringUtil.fastToString(bts, strStart2, idx - strStart2));
-                                break;
-                            case 'n':
-                                events.string(null);
-                                idx += 3; //add 3 we are already at n
-                                break;
-                            case 't':
-                                events.number(Boolean.TRUE);
-                                idx += 3; //add 3 we are already at T
-                                break;
-                            case 'T':
-                                events.number(Boolean.TRUE);
-                                idx += 3; //add 3 we are already at T
-                                break;
-                            case 'f':
-                                events.number(Boolean.FALSE);
-                                idx += 4; //add 4 we are already at F
-                                break;
-                            case 'F':
-                                events.number(Boolean.FALSE);
-                                idx += 4; //add 4 we are already at F
-                                break;
-                            case '{':
-                                int endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
-                                events.lazyObject(bts, idx, endIndex);
-                                idx = endIndex;
-                                break;
-                            case '[':
-                                endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '[', ']');
-                                events.lazyArr(bts, idx, endIndex);
-                                idx = endIndex;
-                                break;
-                            case '-':
-                                idx++;
-                                bt = CharArrayTool.getChar(bts, idx);
-                                if(Character.isDigit(bt)) {
-                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
-
-                                    if (bts[endIndex] == '.') {
-                                        idx--;
-                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
-                                        parseDouble(bts, idx, idx2, events);
-                                        idx = idx2 - 1;
-                                    } else {
-                                        parseInt(bts, idx, endIndex, events, true);
-                                        idx = endIndex - 1;
-                                    }
-                                }
-                                break;
-                            default:
-                                if(Character.isDigit(bt)) {
-                                    endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
-
-                                    if (bts[endIndex] == '.') {
-                                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
-                                        parseDouble(bts, idx, idx2, events);
-                                        idx = idx2 - 1;
-                                    } else {
-                                        parseInt(bts, idx, endIndex, events, false);
-                                        idx = endIndex - 1;
-                                    }
-                                }
-                        }
+                    if (bts[endIndex] == '.') {
+                        int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
+                        parseDouble(bts, idx, idx2, events);
+                        idx = idx2-1;
+                    }else {
+                        parseInt(bts, idx, endIndex, events, false);
+                        idx = endIndex-1;
                     }
+                    break;
 
-
-                    return idx;
                 default:
                     break;
             }
         }
 
-        return i;
+        return idx;
+
     }
 
     private static final void parseInt(char[] bts, int offset, int end, JSONListener events, boolean isNeg){

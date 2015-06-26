@@ -8,7 +8,6 @@
   (:import [org.boon.json  JsonFactory])
   (:use perforate.core))
 
-;;Test message to encoding using for each library the original message as read by the library itself.
 (defgoal json-parse-encode "JSON Encode Simple"
          :setup (fn []
                     (let [msg (slurp "test-resources/msg.json")]
@@ -44,3 +43,7 @@
          [{:keys [cheshire]}]
          (dotimes [i iter]
                   (cheshire/generate-string cheshire)))
+(comment
+  ;;Test message to encoding using for each library the original message as read by the library itself.
+
+  )

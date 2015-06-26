@@ -7,7 +7,6 @@
   (:import [org.boon.json  JsonFactory])
   (:use perforate.core))
 
-
 (defonce iter 1000)
 (defgoal json-parse-all "JSON Parse Benchmark - parse all fields and substructures"
          :setup (fn [] (let [msg (-> "test-resources/msg.json" slurp )]
@@ -38,3 +37,5 @@
          [_ ^String msg]
          (dotimes [i iter]
                   (pr-str (cheshire/parse-string msg))))
+(comment
+ )
