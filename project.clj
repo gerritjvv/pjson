@@ -28,9 +28,9 @@
             :dependencies [
                            [criterium "0.4.3"]
                            [org.clojure/clojure "1.6.0"]
-                           [io.fastjson/boon "0.18"]
-                           [org.clojure/data.json "0.2.5"]
-                           [clj-json "0.5.3"]
-                           [cheshire "5.3.1"]]
+                           [io.fastjson/boon "0.18" :scope "provided"]
+                           [org.clojure/data.json "0.2.5" :scope "provided"]
+                           [clj-json "0.5.3" :scope "provided"]
+                           [cheshire "5.3.1" :scope "provided"]]
 
             :perforate {:benchmark-paths ["src/main/bench/"]})

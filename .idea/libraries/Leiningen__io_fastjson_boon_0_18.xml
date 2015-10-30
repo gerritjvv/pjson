@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Leiningen: io.fastjson/boon:0.18">
-    <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/io/fastjson/boon/0.18/boon-0.18.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
