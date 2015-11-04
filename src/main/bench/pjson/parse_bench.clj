@@ -22,8 +22,8 @@
          (dotimes [i iter]
                   (JsonFactory/fromJson msg)))
 
-
 (comment
+
   (defcase json-parse :data.json
            [_ ^String msg]
            (dotimes [i iter]
@@ -38,4 +38,4 @@
   (defcase json-parse :cheshire
            [_ ^String msg]
            (dotimes [i iter]
-                    (cheshire/parse-string msg))))
+                    (cheshire/parse-string msg))) )

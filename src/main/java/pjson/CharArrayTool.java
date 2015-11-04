@@ -1,6 +1,7 @@
 package pjson;
 
 import sun.misc.Unsafe;
+
 import java.lang.reflect.Field;
 
 /**
@@ -27,72 +28,108 @@ public final class CharArrayTool {
         }
     }
 
-    public static final int endOfString(char[] data, int offset, int end){
+    public static final int endOfString(char[] data, int offset, int end) {
         final int len = data.length;
         int i;
-        for(i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             //we do not need to check to i != 0 because any string will always be within an object or vector
-            if(data[i] == '"' && data[i-1] != '\\')
+            if (data[i] == '"' && data[i - 1] != '\\')
                 return i;
         }
         return i;
     }
 
-    public static final int indexOf(char[] data, int offset, int end, char ch){
+    public static final int indexOf(char[] data, int offset, int end, char ch) {
         int i;
-        for(i = offset; i < end; i++){
-            if(data[i] == ch)
+        for (i = offset; i < end; i++) {
+            if (data[i] == ch)
                 return i;
         }
         return i;
     }
 
     /**
-     * This method makes the assumption that in a json string value the "[", "]", "{", and "}" characters will never be present,
-     * e.g "{\"a\": \"{ \"}" will not work.<br/>
-     * If they are the wrong index will be returned.<br/>
-     * In practice these characters are rarely present inside json strings.
-     * @param data char array
+     * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     * @param data   char array
      * @param offset
      * @param end
-     * @param openChar either '[' or '{'
-     * @param closingChar either ']' or '}'
      * @return the next index after the closingChar
      */
-    public static final int indexOfEndOfObject(char[] data, int offset, int end, char openChar, char closingChar){
+    public static final int indexOfEndOfObject(char[] data, int offset, int end) {
         int i;
         int level = 0;
-        char ch;
-        for(i = offset; i < end; i++){
-            ch = data[i];
-            if(ch == openChar)
-                level++;
-            else if(ch == closingChar){
-                if(level == 0)
-                    return i+1;
-                else
-                    level--;
+        boolean inString = false;
+
+        for (i = offset; i < end; i++) {
+            //over 2 condition checks switch on primitives is faster than if elseif else
+            switch (data[i]) {
+                case '{':
+                    level++;
+                    break;
+                case '"':
+                    i = endOfString(data, i+1, end);
+                    break;
+                case '}':
+                    if (level == 0)
+                        return i + 1;
+                    else
+                        level--;
+                    break;
+
+            }
+        }
+        return i;
+    }
+
+    /**
+     * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     * @param data   char array
+     * @param offset
+     * @param end
+     * @return the next index after the closingChar
+     */
+    public static final int indexOfEndOfList(char[] data, int offset, int end) {
+        int i;
+        int level = 0;
+        boolean inString = false;
+
+        for (i = offset; i < end; i++) {
+            //over 2 condition checks switch on primitives is faster than if elseif else
+            switch (data[i]) {
+                case '[':
+                    level++;
+                    break;
+                case '"':
+                    i = endOfString(data, i+1, end);
+                    break;
+                case ']':
+                    if (level == 0)
+                        return i + 1;
+                    else
+                        level--;
+                    break;
+
             }
         }
         return i;
     }
 
 
-    public static final int skipWhiteSpace(char[] data, int offset, int end){
+    public static final int skipWhiteSpace(char[] data, int offset, int end) {
         int i;
-        for(i = offset; i < end; i++){
-            if(!Character.isSpaceChar(data[i]))
+        for (i = offset; i < end; i++) {
+            if (!Character.isSpaceChar(data[i]))
                 return i;
         }
         return i;
     }
 
-    public static final int indexFirstNonNumeric(char[] data, int offset, int end){
+    public static final int indexFirstNonNumeric(char[] data, int offset, int end) {
         int i;
         char val;
-        for(i = offset; i < end; i++){
+        for (i = offset; i < end; i++) {
             val = data[i];
-            if(val < '0' || val > '9')
+            if (val < '0' || val > '9')
                 break;
         }
         return i;
@@ -100,22 +137,15 @@ public final class CharArrayTool {
 
     public static final char getChar(char[] data, int offset) {
 
-        return UNSAFE.getChar(data, (long)(CHAR_ARRAY_OFFSET + (offset * CHAR_ARRAY_SCALE)));
+        return UNSAFE.getChar(data, (long) (CHAR_ARRAY_OFFSET + (offset * CHAR_ARRAY_SCALE)));
     }
 
     public static final void putChar(char[] data, int offset, char value) {
-        UNSAFE.putChar(data, (long)(CHAR_ARRAY_OFFSET + (offset * CHAR_ARRAY_SCALE)), value);
+        UNSAFE.putChar(data, (long) (CHAR_ARRAY_OFFSET + (offset * CHAR_ARRAY_SCALE)), value);
     }
 
     public static final void copy(char[] src, int srcPos, char[] dest, int destPos, int length) {
-       /*
-        int a = destPos;
-        int end = a + length;
-        int i = srcPos;
-        for(; a < length;)
-            dest[a++] = src[i++];*/
-
         System.arraycopy(src, srcPos, dest, destPos, length);
-        //UNSAFE.copyMemory(src, CHAR_ARRAY_OFFSET + (srcPos * CHAR_ARRAY_SCALE), dest, CHAR_ARRAY_OFFSET + (destPos * CHAR_ARRAY_SCALE), length * CHAR_ARRAY_SCALE);
     }
+
 }

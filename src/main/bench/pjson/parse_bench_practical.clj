@@ -39,21 +39,21 @@
          (dotimes [i iter]
                   (->> msg JsonFactory/fromJson (into {}) do-work JsonFactory/toJson)))
 
-(defcase json-parse-practical :data.json
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (-> msg data-json/read-str do-work data-json/write-str)))
-
-(defcase json-parse-practical :clj-json
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (-> msg clj-json/parse-string do-work clj-json/generate-string)))
-
-
-(defcase json-parse-practical :cheshire
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (-> msg cheshire/parse-string do-work cheshire/generate-string)))
 (comment
 
+  (defcase json-parse-practical :data.json
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (-> msg data-json/read-str do-work data-json/write-str)))
+
+  (defcase json-parse-practical :clj-json
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (-> msg clj-json/parse-string do-work clj-json/generate-string)))
+
+
+  (defcase json-parse-practical :cheshire
+           [_ ^String msg]
+           (dotimes [i iter]
+                    (-> msg cheshire/parse-string do-work cheshire/generate-string)))
   )

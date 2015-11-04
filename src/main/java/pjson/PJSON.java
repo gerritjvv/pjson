@@ -112,7 +112,7 @@ public final class PJSON {
                     idx += 3; //add 3 we are already at T
                     break;
                 case '[': //91
-                    endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '[', ']');
+                    endIndex = CharArrayTool.indexOfEndOfList(bts, idx+1, btsLen);
                     events.lazyArr(bts, idx, endIndex);
                     idx = endIndex;
                     break;
@@ -132,7 +132,7 @@ public final class PJSON {
                     idx += 3; //add 3 we are already at T
                     break;
                 case '{':
-                    endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen, '{', '}');
+                    endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen);
                     events.lazyObject(bts, idx, endIndex);
                     idx = endIndex;
                     break;
