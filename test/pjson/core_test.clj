@@ -34,7 +34,10 @@
 
 
 (deftest test-keywords
-  (is (= (write-str {:a 1 'b 2})  "{\"b\":2,\"a\":1}")))
+  (let [msg (write-str {:a 1 'b 2})]
+    (is (or
+          (=  msg "{\"b\":2,\"a\":1}")
+          (=  msg "{\"a\":1,\"b\":2}")))))
 
 
 (deftest test-types-to-string
