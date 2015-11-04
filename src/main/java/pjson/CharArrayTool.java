@@ -145,14 +145,7 @@ public final class CharArrayTool {
     }
 
     public static final void copy(char[] src, int srcPos, char[] dest, int destPos, int length) {
-       /*
-        int a = destPos;
-        int end = a + length;
-        int i = srcPos;
-        for(; a < length;)
-            dest[a++] = src[i++];*/
-
         System.arraycopy(src, srcPos, dest, destPos, length);
-        //UNSAFE.copyMemory(src, CHAR_ARRAY_OFFSET + (srcPos * CHAR_ARRAY_SCALE), dest, CHAR_ARRAY_OFFSET + (destPos * CHAR_ARRAY_SCALE), length * CHAR_ARRAY_SCALE);
     }
+
 }
