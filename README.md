@@ -4,6 +4,8 @@ Fast clojure json parser
 
 The parser's focus is on speed and not validating json.
 
+[![Build Status](https://travis-ci.org/gerritjvv/pjson.svg)](https://travis-ci.org/gerritjvv/pjson)
+
 [![Clojars Project](http://clojars.org/pjson/latest-version.svg)](http://clojars.org/pjson)
 
 All data returned are clojure persistent data structures that can be used with assoc, merge, map, reduce etc.
