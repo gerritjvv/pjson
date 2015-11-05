@@ -145,7 +145,8 @@ public final class CharArrayTool {
     }
 
     public static final void copy(char[] src, int srcPos, char[] dest, int destPos, int length) {
-        System.arraycopy(src, srcPos, dest, destPos, length);
+        if(length != 0)
+            System.arraycopy(src, srcPos, dest, destPos, length);
     }
 
 }
