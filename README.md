@@ -54,9 +54,9 @@ All data returned are clojure persistent data structures that can be used with a
 *   You need speed at all cost.
 *   You spend more than 30-50% of your application time on json parsing, and need to scale more.
 
-### Assumptions about the data
+### Assumptions about the data for the sake of performance
 
-*   The data is trusted JSON data, see validation.
+*   See Validation.
 *   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down. Please note that this does not mean that you cannot use other encoding formats, that that they are not the fastest and only affects speed if you translate from bytes to chars, if you already have a String or char array then no extra encoding is done.
 
 ### Validation
