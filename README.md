@@ -62,7 +62,7 @@ All data returned are clojure persistent data structures that can be used with a
 ### Validation
 
 This library is about parsing the data as fast as possible, and validation is not done extensively.  
-Exceptions are thrown where in a peformant way data is deemed invalid, e.g 
+Exceptions are thrown where in a performant way data is deemed invalid, e.g 
 
 ```clojure
 (require '[pjson.core :as pjson])
