@@ -1,5 +1,7 @@
 package pjson;
 
+import java.math.BigInteger;
+
 /**
  * Fast number parsing.
  * Integers can have a maximum string length of 10, and Long a maximum of 19.<br/>
@@ -257,4 +259,7 @@ public class NumberUtil {
                 * 10L) + (ch[start + 18] - '0'));
     }
 
+    public static final BigInteger parseBigInteger(char[] array, int offset, int len) {
+        return new BigInteger(StringUtil.fastToString(array, offset, len));
+    }
 }

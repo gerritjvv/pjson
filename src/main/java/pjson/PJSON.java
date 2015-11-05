@@ -212,7 +212,8 @@ public final class PJSON {
             case 19:
                 l = NumberUtil.parse_19(bts, offset); break;
             default:
-                throw new NumberFormatException("Number out of range " + StringUtil.fastToString(bts, offset, end-offset));
+                events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset));
+                return;
         }
 
         events.number(new Long(isNeg ? l * -1 : l));
