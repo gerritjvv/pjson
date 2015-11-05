@@ -10,47 +10,6 @@ The parser's focus is on speed and not validating json.
 
 All data returned are clojure persistent data structures that can be used with assoc, merge, map, reduce etc.
 
-## Who should use this library
-
-*   If any of the tradeoffs are not a stopper for your project
-*   You have some knowledge (or control) of the content you parse.
-*   You need speed at all cost.
-*   You spend more than 30-50% of your application time on json parsing, and need to scale more.
-
-### Assumptions about the data
-
-*   The data is correct JSON data.
-*   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down. Please note that this does not mean that you cannot use other encoding formats, that that they are not the fastest and only affects speed if you translate from bytes to chars, if you already have a String or char array then no extra encoding is done.
-
-### Tradeoffs
-
-*   sun.misc.Unsafe must be supported on the JVM you use, if you are not using the Oracle JVM please test first.
-*   no format checking is provided.
-
-
-
-## Speed, Charsets and JVM version
-
-Although the code compiles with JRE 1.5 compatibility your encouraged to run with at least 1.7 b53 or upwards.
-This is because in 1.7 b53 major performance improvements have been done on String creations, which is central to this library.
-
-see: 
-
-https://blogs.oracle.com/xuemingshen/entry/faster_new_string_bytes_cs
-http://java-performance.info/charset-encoding-decoding-java-78/
-
-Always use the DEFAULT_CHARSET (from this library) which use the "ISO-8859-1" encoding.
-
-## JSONP
-
-This library concentrates on maximum performance and thus tries to manipulate data is little as possible.
-If you are using this library in a backend to send data to Java Script, you need to escape your strings according to
-the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
-
-## Charsets and language encodings
-
-The fastest Charset is used by default which is the "ISO-8859-1" charset (optimized in java 1.7).
-
 ## Usage
 
 ### Clojure
@@ -87,6 +46,86 @@ The fastest Charset is used by default which is the "ISO-8859-1" charset (optimi
 
 
 ```
+
+## Who should use this library
+
+*   If any of the tradeoffs are not a stopper for your project
+*   You have some knowledge (or control) of the content you parse.
+*   You need speed at all cost.
+*   You spend more than 30-50% of your application time on json parsing, and need to scale more.
+
+### Assumptions about the data
+
+*   The data is trusted JSON data, see validation.
+*   For maximum speed your JSON data should be compatible with the "ISO-8859-1" encoding, otherwise the way Strings are decoded by the JVM will slow you down. Please note that this does not mean that you cannot use other encoding formats, that that they are not the fastest and only affects speed if you translate from bytes to chars, if you already have a String or char array then no extra encoding is done.
+
+### Validation
+
+This library is about parsing the data as fast as possible, and validation is not done extensively.  
+Exceptions are thrown where in a peformant way data is deemed invalid, e.g 
+
+```clojure
+(require '[pjson.core :as pjson])
+
+ (pjson/read-str "{\"abc\": bla}")
+ ;; {}
+ 
+ (pjson/read-str "{\"abc\": bla, "\edf\":122}")
+ ;; RuntimeException Unsupported character: \edf
+ 
+```
+
+Data validation should be a separate step after parsing as required and normally can be done much faster on an application specific way than can be done generically by the parser.
+
+```clojure
+(require '[pjson.core :as pjson])
+
+(def user (pjson/read-str "{\"abc\": bla}"))
+
+(defn valid-user-token? [msg] (get msg "user"))
+
+(valid-user-token? user)
+;; nil
+(valid-user-token? (pjson/read-str "{\"user\": \"abc\"}"))
+;; "abc"
+;; is much more performant and usable than
+
+
+(def user (pjson/read-str "{\"abc\": bla}"))
+;;ParserException !!!
+
+```
+
+So my point of view is ```invalid-document -> exception == invalid-document -> validation```. 
+
+### Tradeoffs
+
+*   sun.misc.Unsafe must be supported on the JVM you use, if you are not using the Oracle JVM please test first.
+*   no format checking is provided.
+
+
+
+## Speed, Charsets and JVM version
+
+Although the code compiles with JRE 1.5 compatibility your encouraged to run with at least 1.7 b53 or upwards.
+This is because in 1.7 b53 major performance improvements have been done on String creations, which is central to this library.
+
+see: 
+
+https://blogs.oracle.com/xuemingshen/entry/faster_new_string_bytes_cs
+http://java-performance.info/charset-encoding-decoding-java-78/
+
+Always use the DEFAULT_CHARSET (from this library) which use the "ISO-8859-1" encoding.
+
+## JSONP
+
+This library concentrates on maximum performance and thus tries to manipulate data is little as possible.
+If you are using this library in a backend to send data to Java Script, you need to escape your strings according to
+the document here: http://timelessrepo.com/json-isnt-a-javascript-subset.
+
+## Charsets and language encodings
+
+The fastest Charset is used by default which is the "ISO-8859-1" charset (optimized in java 1.7).
 
 ### Compatibility with other parser libraries.
 
