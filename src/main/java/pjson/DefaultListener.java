@@ -1,5 +1,7 @@
 package pjson;
 
+import java.math.BigInteger;
+
 /**
  * Return the JSON data as: Objects == Map, Array == Vector, keys and values as String.
  */
@@ -33,6 +35,11 @@ public final class DefaultListener extends JSONListener{
 
     @Override
     public final void number(Boolean val) {
+        current.append(val);
+    }
+
+    @Override
+    public final void bigInteger(BigInteger val) {
         current.append(val);
     }
 
