@@ -8,6 +8,14 @@
 (defn equal-after-decode [m1 m2]
   (= (-> m1 write-str read-str) m2))
 
+(deftest empty-map-read
+  (is (= (read-str "{}") {})))
+
+
+(deftest empty-list-read
+  (is (= (read-str "[]") [])))
+
+
 (deftest test-string-escaping
   (let [test-str "[\"mystring\"]"]
     (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 10)))
@@ -53,5 +61,4 @@
   (is (equal-after-decode (doto (ArrayList.) (.add 1.2) (.add 2.3)) [1.2 2.3])) ;test List
   (is (equal-after-decode (doto (LinkedList.) (.add 1.2) (.add 2.3)) [1.2 2.3])) ;test Collection/Iterable
   (is (equal-after-decode (doto (TreeSet.) (.add 1.2) (.add 2.3)) [1.2 2.3])) ;test Collection/Iterable
-
   )
