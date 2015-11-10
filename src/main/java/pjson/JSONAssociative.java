@@ -8,13 +8,20 @@ import java.util.Map;
 
 /**
  */
-public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed, Counted {
+public final class JSONAssociative extends APersistentMap implements ToJSONString, Indexed, Counted, IObj {
     final private Object[] arr;
     final int len;
 
-    public JSONAssociative(Object[] arr, int len) {
+    final IPersistentMap meta;
+
+    public JSONAssociative(Object[] arr, int len){
+        this(arr, len, null);
+    }
+
+    public JSONAssociative(Object[] arr, int len, IPersistentMap meta) {
         this.arr = arr;
         this.len = len;
+        this.meta = meta;
     }
 
     @Override
@@ -206,6 +213,16 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
         }
     }
 
+    @Override
+    public IObj withMeta(IPersistentMap meta) {
+        return new JSONAssociative(arr, len, meta);
+    }
+
+    @Override
+    public IPersistentMap meta() {
+        return meta;
+    }
+
     public final static class JSONAssocSEQ extends ASeq implements Indexed, Counted {
 
         final JSONAssociative map;
@@ -345,16 +362,23 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
     }
 
-    public static final class JSONVector extends APersistentVector implements ToJSONString, Counted {
+    public static final class JSONVector extends APersistentVector implements ToJSONString, Counted, IObj {
 
         final String json;
         final Object[] arr;
         final int len;
 
+        final IPersistentMap meta;
+
         public JSONVector(String json, Object[] arr, int len) {
+            this(json, arr, len, null);
+        }
+
+        public JSONVector(String json, Object[] arr, int len, IPersistentMap meta) {
             this.json = json;
             this.arr = arr;
             this.len = len;
+            this.meta = meta;
         }
 
         public JSONVector(Object[] arr, int len) {
@@ -547,6 +571,16 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
             }catch (IOException e){
                 throw new RuntimeException(e);
             }
+        }
+
+        @java.lang.Override
+        public IObj withMeta(IPersistentMap meta) {
+            return new JSONVector(json, arr, len, meta);
+        }
+
+        @java.lang.Override
+        public IPersistentMap meta() {
+            return meta;
         }
     }
 
