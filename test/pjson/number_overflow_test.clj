@@ -16,13 +16,17 @@
   ([n]
     (test-num n false))
   ([n is-neg]
-   (Long/parseLong (negate-str is-neg (test-num-str n)))))
+   (try
+     (Long/parseLong (negate-str is-neg (test-num-str n)))
+     (catch NumberFormatException _ (test-num n is-neg)))))
 
 (defn test-double
   ([n]
     (test-double n false))
   ([n is-neg]
-   (Double/parseDouble (negate-str is-neg (str "0." (test-num-str n))))))
+   (try
+     (Double/parseDouble (negate-str is-neg (str "0." (test-num-str n))))
+     (catch NumberFormatException _ (test-double n is-neg)))))
 
 (defn test-biginteger
   ([n]
