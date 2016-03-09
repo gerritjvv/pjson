@@ -5,7 +5,8 @@
 
 
 (defn test-num-str [n]
-  (apply str (repeatedly n #(rand-int 10))))
+  (apply str
+         (repeatedly n #(rand-int 10))))
 
 (defn negate-str [is-neg s]
   (if is-neg
