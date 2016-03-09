@@ -1,5 +1,6 @@
 package pjson;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 /**
@@ -212,7 +213,7 @@ public final class PJSON {
             case 19:
                 l = NumberUtil.parse_19(bts, offset); break;
             default:
-                events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset));
+                events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset, isNeg));
                 return;
         }
 
@@ -221,7 +222,12 @@ public final class PJSON {
 
     private static final void parseDouble(char[] bts, int offset, int end, JSONListener events){
         final String str = StringUtil.fastToString(bts, offset, end-offset);
-        events.number(Double.valueOf(str));
+
+        int len = end-offset;
+        if(len > 22)
+            events.bigDecimal(new BigDecimal(str));
+        else
+            events.number(Double.valueOf(str));
     }
 
     /**

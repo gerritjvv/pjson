@@ -1,5 +1,6 @@
 package pjson;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -14,6 +15,7 @@ public abstract class JSONListener {
     public abstract void number(Boolean i);
 
     public abstract void bigInteger(BigInteger i);
+    public abstract void bigDecimal(BigDecimal bigDecimal);
 
     public abstract void objectStart();
     public abstract void objectEnd();

@@ -1,5 +1,6 @@
 package pjson;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -42,6 +43,9 @@ public final class DefaultListener extends JSONListener{
     public final void bigInteger(BigInteger val) {
         current.append(val);
     }
+
+    @Override
+    public final void bigDecimal(BigDecimal val) { current.append(val); }
 
     @Override
     public final void objectStart() {
