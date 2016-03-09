@@ -1,5 +1,6 @@
 package pjson;
 
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
 /**
@@ -210,9 +211,17 @@ public final class PJSON {
             case 18:
                 l = NumberUtil.parse_18(bts, offset); break;
             case 19:
-                l = NumberUtil.parse_19(bts, offset); break;
+                try {
+                    //LONG MAX is 9223372036854775807, values like 9720766928229509520 will overflow
+                    //we need to catch possible number format exceptions and parse a big integer
+                    l = NumberUtil.parse_19(bts, offset);
+                }catch(NumberFormatException e){
+                    events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset, isNeg));
+                    return;
+                }
+                break;
             default:
-                events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset));
+                events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset, isNeg));
                 return;
         }
 
@@ -221,7 +230,17 @@ public final class PJSON {
 
     private static final void parseDouble(char[] bts, int offset, int end, JSONListener events){
         final String str = StringUtil.fastToString(bts, offset, end-offset);
-        events.number(Double.valueOf(str));
+
+        int len = end-offset;
+        if(len > 22)
+            events.bigDecimal(new BigDecimal(str));
+        else {
+            try {
+                events.number(Double.valueOf(str));
+            }catch(NumberFormatException e){
+                events.bigDecimal(new BigDecimal(str));
+            }
+        }
     }
 
     /**

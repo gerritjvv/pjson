@@ -1,4 +1,4 @@
-(defproject pjson "0.3.1"
+(defproject pjson "0.3.2"
             :description "Fast clojure json library"
             :url "https://github.com/gerritjvv/pjson"
             :license {:name "Eclipse Public License"
@@ -26,6 +26,8 @@
             :aot [pjson.core]
             :main pjson.core
             :dependencies [
+			   [riddley "0.1.11"]
+			   [proteus "0.1.4"]
                            [criterium "0.4.3"]
                            [org.clojure/clojure "1.7.0"]
                            [io.fastjson/boon "0.18" :scope "provided"]
