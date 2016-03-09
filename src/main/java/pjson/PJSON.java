@@ -217,6 +217,7 @@ public final class PJSON {
                     l = NumberUtil.parse_19(bts, offset);
                 }catch(NumberFormatException e){
                     events.bigInteger(NumberUtil.parseBigInteger(bts, offset, end-offset, isNeg));
+                    return;
                 }
                 break;
             default:
