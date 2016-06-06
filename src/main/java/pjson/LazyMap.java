@@ -100,7 +100,7 @@ public class LazyMap extends APersistentMap implements ToJSONString {
     @Override
     public Iterator iterator() {
         realize();
-        return map.iterator();
+        return (map == null) ? PersistentArrayMap.EMPTY.iterator() : map.iterator();
     }
 
     @Override
