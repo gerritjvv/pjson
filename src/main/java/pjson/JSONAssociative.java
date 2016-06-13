@@ -26,7 +26,7 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
     @Override
     public final boolean containsKey(Object key) {
-        for (int i = 0; i < len; i = +2)
+        for (int i = 0; i < len; i += 2)
             if (Util.equiv(arr[i], key))
                 return true;
 
@@ -221,6 +221,17 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
     @Override
     public IPersistentMap meta() {
         return meta;
+    }
+
+    private final boolean nullSafeEqual(Object obj1, Object obj2){
+        if(obj1 == null && obj2 == null)
+            return true;
+
+        if(obj1 != null){
+            return obj2 != null && obj1.equals(obj2);
+        }
+
+        return false;
     }
 
     public final static class JSONAssocSEQ extends ASeq implements Indexed, Counted {

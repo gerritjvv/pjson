@@ -5,7 +5,8 @@ import clojure.lang.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Takes a json string and only realized it when required, the toString methods do not require any json parsing.
+ * Takes a json string and only realized it when required, the toString methods do not require any json parsing.<br/>
+ * Any null vector values are treated as empty vectors.
  */
 public class LazyVector extends APersistentVector implements ToJSONString{
 
@@ -36,7 +37,8 @@ public class LazyVector extends APersistentVector implements ToJSONString{
         if(!realized.getAndSet(true)){
             DefaultListener listener = new DefaultListener();
             PJSON.lazyParse(json, from, from+len, listener);
-            v = (APersistentVector)listener.getValue();
+            APersistentVector v = (APersistentVector)listener.getValue();
+            this.v = (v == null) ? PersistentVector.EMPTY : v;
         }
     }
     @Override

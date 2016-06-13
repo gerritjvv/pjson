@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Takes a json string and only realized it when required, the toString methods do not require any json parsing.
+ * Takes a json string and only realized it when required, the toString methods do not require any json parsing.<br/>
+ * Any null maps are treated as Empty MAPs.
  */
 public class LazyMap extends APersistentMap implements ToJSONString {
 
@@ -34,7 +35,8 @@ public class LazyMap extends APersistentMap implements ToJSONString {
         if(!realized.getAndSet(true)){
             DefaultListener listener = new DefaultListener();
             PJSON.lazyParse(json, from, from+len, listener);
-            map = (APersistentMap)listener.getValue();
+            APersistentMap map = (APersistentMap)listener.getValue();
+            this.map = (map == null) ? PersistentArrayMap.EMPTY : map;
         }
     }
 
@@ -98,7 +100,7 @@ public class LazyMap extends APersistentMap implements ToJSONString {
     @Override
     public Iterator iterator() {
         realize();
-        return map.iterator();
+        return (map == null) ? PersistentArrayMap.EMPTY.iterator() : map.iterator();
     }
 
     @Override
