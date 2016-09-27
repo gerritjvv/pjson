@@ -29,13 +29,47 @@ public final class CharArrayTool {
     }
 
     public static final int endOfString(char[] data, int offset, int end) {
-        final int len = data.length;
-        int i;
-        for (i = offset; i < end; i++) {
-            //we do not need to check to i != 0 because any string will always be within an object or vector
-            if (data[i] == '"' && data[i - 1] != '\\')
+        int i = offset;
+        for (; i < end; i++) {
+
+            //  \\" \" \\\" read as fast as possible only comparing a single " char
+            // if the previous char is a back space and that backspace is also escaped, we
+            // enter the slow path and do a proper scan of the string for escaped chars
+            if (data[i] == '\"') {
+                if (data[i - 1] == '\\') {
+                    return readSlowEscapedString(data, offset, end);
+                }
+
                 return i;
+            }
         }
+
+        return i;
+    }
+
+    /**
+     * Slow function to read escaped characters and find the correct end of strnig
+     */
+    private static int readSlowEscapedString(char[] data, int offset, int end) {
+
+        boolean escape = false;
+        int i = offset;
+        char ch;
+
+        for (; i < end; i++) {
+            if (!escape) {
+                ch = data[i];
+
+                if (ch == '"')
+                    return i;
+
+                escape = ch == '\\';
+            } else {
+                escape = false;
+            }
+
+        }
+
         return i;
     }
 
@@ -50,6 +84,7 @@ public final class CharArrayTool {
 
     /**
      * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     *
      * @param data   char array
      * @param offset
      * @param end
@@ -67,7 +102,7 @@ public final class CharArrayTool {
                     level++;
                     break;
                 case '"':
-                    i = endOfString(data, i+1, end);
+                    i = endOfString(data, i + 1, end);
                     break;
                 case '}':
                     if (level == 0)
@@ -83,6 +118,7 @@ public final class CharArrayTool {
 
     /**
      * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     *
      * @param data   char array
      * @param offset
      * @param end
@@ -100,7 +136,7 @@ public final class CharArrayTool {
                     level++;
                     break;
                 case '"':
-                    i = endOfString(data, i+1, end);
+                    i = endOfString(data, i + 1, end);
                     break;
                 case ']':
                     if (level == 0)
@@ -145,7 +181,7 @@ public final class CharArrayTool {
     }
 
     public static final void copy(char[] src, int srcPos, char[] dest, int destPos, int length) {
-        if(length != 0)
+        if (length != 0)
             System.arraycopy(src, srcPos, dest, destPos, length);
     }
 
