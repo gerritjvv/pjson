@@ -21,12 +21,7 @@
     (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 10)))
 
   (let [test-str "[\"mystri\\\"ng\"]"]
-    (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 12)))
-
-  (is (=
-        (-> "{\"a\":\"1 \\\"  \"}"
-            read-str write-str read-str write-str read-str)
-        {"a" "1 \\\"  "})))
+    (is (= (CharArrayTool/endOfString (char-array test-str) 2 (count test-str)) 12))))
 
 
 (deftest test-readmap

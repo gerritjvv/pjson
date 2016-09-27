@@ -34,3 +34,11 @@
                                  test-fn (fn [[t result]]
                                               (= (pjson/read-str t) result))]
                              (is (every? test-fn data))))
+
+(deftest test-write-escapes []
+                           (let [data [[["b\\"] "[\"b\\\\\"]"]]
+
+                                 test-fn (fn [[t result]]
+                                           (= (pjson/write-str t) result))]
+                             (is (every? test-fn data))))
+
