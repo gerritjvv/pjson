@@ -36,6 +36,8 @@ public abstract class JSONWriter {
 
     public abstract void writeFieldName(String str);
 
+    public abstract void writeObjLazyString(char[] json, int from, int len);
+
     public static class NOOPJSONWriter extends JSONWriter {
 
         @Override
@@ -103,6 +105,10 @@ public abstract class JSONWriter {
         }
 
         @Override
+        public void writeObjLazyString(char[] json, int from, int len) {
+        }
+
+        @Override
         public String toString() {
             return "";
         }
@@ -132,6 +138,16 @@ public abstract class JSONWriter {
             buff.append(']');
         }
 
+
+        /**
+         * This is used internally by the Lazy* objects to write its original json directly to the output.
+         * We do not escape and parse anything here.
+         */
+        @Override
+        public void writeObjLazyString(char[] json, int from, int len) {
+            buff.append(json, from, len);
+        }
+
         @Override
         public void writeString(String str) {
 
@@ -143,6 +159,9 @@ public abstract class JSONWriter {
 
         @Override
         public void writeString(char[] str, int from, int len) {
+
+            if(true)
+                throw new RuntimeException();
 
             if (isEscaped(str, from, len))
                 writeEscapedStr(str, from, len);

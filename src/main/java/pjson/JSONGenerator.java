@@ -33,6 +33,7 @@ public final class JSONGenerator {
     }
 
     public static final void forObj(final JSONWriter writer, final Object obj) throws IOException {
+
         if (obj == null) {
             writer.writeNull();
         } else {

@@ -4,4 +4,13 @@
 
 
 (deftest test-reading
-  (is (pjson.core/read-str "[{\"a\":\"J\\\\\"}]")))
+  (is
+    (=
+      (pjson/read-str "[{\"a\":\"J\\\\\"}]")
+      [{"a" "J\\"}])))
+
+(deftest test-read-write-escape
+  (is
+    (=
+      (pjson/read-str (pjson/write-str (pjson/read-str (pjson/write-str (pjson/read-str (pjson/write-str [{:name "Joe\\"}]))))))
+      [{"name" "Joe\\"}])))

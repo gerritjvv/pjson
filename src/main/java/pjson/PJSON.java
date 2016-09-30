@@ -84,8 +84,14 @@ public final class PJSON {
             switch (bt){
                 case '"': //34
                     final int strStart2 = idx + 1;
-                    idx = CharArrayTool.endOfString(bts, strStart2, end);
-                    events.string(StringUtil.fastToString(bts, strStart2, idx - strStart2));
+                    try{
+                        idx = CharArrayTool.endOfString2(bts, strStart2, end);
+                        events.string(StringUtil.fastToString(bts, strStart2, idx - strStart2));
+                    }catch(CharArrayTool.SlowParserException slowe){
+                        SlowParser.ParseResult result = SlowParser.parseString(bts, strStart2, end);
+                        events.string(result.val);
+                        idx = result.index-1;
+                    }
                     break;
                 case '-': //45
                     idx++;

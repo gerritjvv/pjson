@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
  */
 public final class CharArrayTool {
 
+    private static volatile SlowParserException SLOW_PARSER_EXCEPTION;
+
+
     private static final Unsafe UNSAFE;
     public static final int CHAR_ARRAY_OFFSET;
     public static final int CHAR_ARRAY_SCALE;
@@ -28,7 +31,7 @@ public final class CharArrayTool {
         }
     }
 
-    public static final int endOfString(char[] data, int offset, int end) {
+    public static final int endOfString2(char[] data, int offset, int end) throws SlowParserException {
         int i = offset;
         for (; i < end; i++) {
 
@@ -37,7 +40,9 @@ public final class CharArrayTool {
             // enter the slow path and do a proper scan of the string for escaped chars
             if (data[i] == '\"') {
                 if (data[i - 1] == '\\') {
-                    return readSlowEscapedString(data, offset, end);
+                    if(SLOW_PARSER_EXCEPTION == null)
+                        SLOW_PARSER_EXCEPTION = new SlowParserException();
+                    throw SLOW_PARSER_EXCEPTION;
                 }
 
                 return i;
@@ -47,27 +52,12 @@ public final class CharArrayTool {
         return i;
     }
 
-    /**
-     * Slow function to read escaped characters and find the correct end of strnig
-     */
-    private static int readSlowEscapedString(char[] data, int offset, int end) {
-
-        boolean escape = false;
+    public static final int endOfString(char[] data, int offset, int end) {
         int i = offset;
-        char ch;
-
         for (; i < end; i++) {
-            if (!escape) {
-                ch = data[i];
 
-                if (ch == '"')
-                    return i;
-
-                escape = ch == '\\';
-            } else {
-                escape = false;
-            }
-
+            if (data[i] == '\"')
+                return i;
         }
 
         return i;
@@ -185,4 +175,11 @@ public final class CharArrayTool {
             System.arraycopy(src, srcPos, dest, destPos, length);
     }
 
+    /**
+     * Indicates that we need to activate the slow parser
+     */
+    public static class SlowParserException extends RuntimeException{
+        public SlowParserException() {
+        }
+    }
 }
