@@ -140,6 +140,7 @@ public final class PJSON {
                     break;
                 case '{':
                     endIndex = CharArrayTool.indexOfEndOfObject(bts, idx+1, btsLen);
+
                     events.lazyObject(bts, idx, endIndex);
                     idx = endIndex;
                     break;

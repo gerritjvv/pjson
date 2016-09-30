@@ -33,34 +33,31 @@ public final class CharArrayTool {
 
     public static final int endOfString2(char[] data, int offset, int end) throws SlowParserException {
         int i = offset;
+        char ch;
+
         for (; i < end; i++) {
+            ch = data[i];
 
-            //  \\" \" \\\" read as fast as possible only comparing a single " char
-            // if the previous char is a back space and that backspace is also escaped, we
-            // enter the slow path and do a proper scan of the string for escaped chars
-            if (data[i] == '\"') {
-                if (data[i - 1] == '\\') {
-                    if(SLOW_PARSER_EXCEPTION == null)
-                        SLOW_PARSER_EXCEPTION = new SlowParserException();
-                    throw SLOW_PARSER_EXCEPTION;
-                }
-
-                return i;
+            if (ch == '\\') {
+                if(SLOW_PARSER_EXCEPTION == null)
+                    SLOW_PARSER_EXCEPTION = new SlowParserException();
+                throw SLOW_PARSER_EXCEPTION;
             }
+
+            if (ch == '"')
+                return i;
+
         }
 
         return i;
     }
 
     public static final int endOfString(char[] data, int offset, int end) {
-        int i = offset;
-        for (; i < end; i++) {
-
-            if (data[i] == '\"')
-                return i;
+        try{
+            return endOfString2(data, offset, end);
+        }catch(SlowParserException excp){
+            return SlowParser.parseString(data, offset, end).index;
         }
-
-        return i;
     }
 
     public static final int indexOf(char[] data, int offset, int end, char ch) {
@@ -92,9 +89,11 @@ public final class CharArrayTool {
                     level++;
                     break;
                 case '"':
+                    int a = i;
                     i = endOfString(data, i + 1, end);
                     break;
                 case '}':
+
                     if (level == 0)
                         return i + 1;
                     else
