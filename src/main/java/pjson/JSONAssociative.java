@@ -146,7 +146,6 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
     public final void toString(JSONWriter writer) {
         try{
             writer.startObj();
-            final int len2 = len - 2;
             for (int i = 0; i < len; i += 2) {
                 if(i != 0)
                     writer.writeComma();;
@@ -567,8 +566,10 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
 
         @Override
         public final void toString(JSONWriter buff) {
+
             try{
                 if (json == null) {
+
                     buff.startArr();
                     for(int i = 0; i < len; i++){
                         if(i != 0)
@@ -577,7 +578,9 @@ public final class JSONAssociative extends APersistentMap implements ToJSONStrin
                     }
                     buff.endArr();
                 } else {
-                    buff.writeString(json);
+
+                    char[] arr = StringUtil.toCharArray(json);
+                    buff.writeObjLazyString(arr, 0, arr.length);
                 }
             }catch (IOException e){
                 throw new RuntimeException(e);

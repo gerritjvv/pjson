@@ -84,6 +84,6 @@ public class LazyVector extends APersistentVector implements ToJSONString{
 
     @Override
     public void toString(JSONWriter buff) {
-        buff.writeString(json, from, len);
+        buff.writeObjLazyString(json, from, len);
     }
 }

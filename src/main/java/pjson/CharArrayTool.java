@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
  */
 public final class CharArrayTool {
 
+    private static volatile SlowParserException SLOW_PARSER_EXCEPTION;
+
+
     private static final Unsafe UNSAFE;
     public static final int CHAR_ARRAY_OFFSET;
     public static final int CHAR_ARRAY_SCALE;
@@ -28,15 +31,33 @@ public final class CharArrayTool {
         }
     }
 
-    public static final int endOfString(char[] data, int offset, int end) {
-        final int len = data.length;
-        int i;
-        for (i = offset; i < end; i++) {
-            //we do not need to check to i != 0 because any string will always be within an object or vector
-            if (data[i] == '"' && data[i - 1] != '\\')
+    public static final int endOfString2(char[] data, int offset, int end) throws SlowParserException {
+        int i = offset;
+        char ch;
+
+        for (; i < end; i++) {
+            ch = data[i];
+
+            if (ch == '\\') {
+                if(SLOW_PARSER_EXCEPTION == null)
+                    SLOW_PARSER_EXCEPTION = new SlowParserException();
+                throw SLOW_PARSER_EXCEPTION;
+            }
+
+            if (ch == '"')
                 return i;
+
         }
+
         return i;
+    }
+
+    public static final int endOfString(char[] data, int offset, int end) {
+        try{
+            return endOfString2(data, offset, end);
+        }catch(SlowParserException excp){
+            return SlowParser.parseString(data, offset, end).index;
+        }
     }
 
     public static final int indexOf(char[] data, int offset, int end, char ch) {
@@ -50,6 +71,7 @@ public final class CharArrayTool {
 
     /**
      * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     *
      * @param data   char array
      * @param offset
      * @param end
@@ -67,9 +89,11 @@ public final class CharArrayTool {
                     level++;
                     break;
                 case '"':
-                    i = endOfString(data, i+1, end);
+                    int a = i;
+                    i = endOfString(data, i + 1, end);
                     break;
                 case '}':
+
                     if (level == 0)
                         return i + 1;
                     else
@@ -83,6 +107,7 @@ public final class CharArrayTool {
 
     /**
      * To use switch we need to duplicate this function into indexOfEndOfObject and indexOfEndOfList
+     *
      * @param data   char array
      * @param offset
      * @param end
@@ -100,7 +125,7 @@ public final class CharArrayTool {
                     level++;
                     break;
                 case '"':
-                    i = endOfString(data, i+1, end);
+                    i = endOfString(data, i + 1, end);
                     break;
                 case ']':
                     if (level == 0)
@@ -145,8 +170,15 @@ public final class CharArrayTool {
     }
 
     public static final void copy(char[] src, int srcPos, char[] dest, int destPos, int length) {
-        if(length != 0)
+        if (length != 0)
             System.arraycopy(src, srcPos, dest, destPos, length);
     }
 
+    /**
+     * Indicates that we need to activate the slow parser
+     */
+    public static class SlowParserException extends RuntimeException{
+        public SlowParserException() {
+        }
+    }
 }

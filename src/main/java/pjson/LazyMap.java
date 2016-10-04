@@ -34,6 +34,7 @@ public class LazyMap extends APersistentMap implements ToJSONString {
     private final void realize(){
         if(!realized.getAndSet(true)){
             DefaultListener listener = new DefaultListener();
+
             PJSON.lazyParse(json, from, from+len, listener);
             APersistentMap map = (APersistentMap)listener.getValue();
             this.map = (map == null) ? PersistentArrayMap.EMPTY : map;
@@ -115,7 +116,7 @@ public class LazyMap extends APersistentMap implements ToJSONString {
     }
 
     public void toString(JSONWriter buff) {
-        buff.writeString(json, from, len);
+        buff.writeObjLazyString(json, from, len);
     }
 }
 

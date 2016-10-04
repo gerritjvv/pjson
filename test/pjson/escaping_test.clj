@@ -25,3 +25,22 @@
 
 (deftest test-conversion-lazy-list []
          (is (not (nil? (test-fail-message CONVERSION-MSG-LIST)))))
+
+
+(deftest test-read-escapes []
+                           (let [data [
+                                       ["{\"a\": \"a\\ \\ a\"}"      {"a" "a\\\\a"}]
+                                       ["[{\"a\":\"J\\\\\\\"\"}]"  [{"a" "J\\\\"}]
+                                        "[{\"a\":\"J\\\\\"}]"      [{"a" "J\\"}]]]
+
+                                 test-fn (fn [[t result]]
+                                              (= (pjson/read-str t) result))]
+                             (is (every? test-fn data))))
+
+(deftest test-write-escapes []
+                           (let [data [[["b\\"] "[\"b\\\\\"]"]]
+
+                                 test-fn (fn [[t result]]
+                                           (= (pjson/write-str t) result))]
+                             (is (every? test-fn data))))
+
