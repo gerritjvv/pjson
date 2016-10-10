@@ -50,7 +50,6 @@ All data returned are clojure persistent data structures that can be used with a
 ## Who should use this library
 
 *   If any of the tradeoffs are not a stopper for your project
-*   You have some knowledge (or control) of the content you parse.
 *   You need speed at all cost.
 *   You spend more than 30-50% of your application time on json parsing, and need to scale more.
 
@@ -97,6 +96,14 @@ Data validation should be a separate step after parsing as required and normally
 ```
 
 So my point of view is ```invalid-document -> exception == invalid-document -> validation```. 
+
+### Escaped Characters
+
+As for version ```0.3.6``` escaped characters are supported and correctly read, if a String with an escape
+character is detected the parser will drop into a slower parsing implementation that will read all escapes correctly.
+
+The drop into slower parser is only done for those Strings that contain escaped characters thus only paying the performance
+penalty where required.
 
 ### Tradeoffs
 
