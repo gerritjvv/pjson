@@ -239,6 +239,7 @@ public final class PJSON {
         final String str = StringUtil.fastToString(bts, offset, end-offset);
 
         int len = end-offset;
+
         if(len > 22)
             events.bigDecimal(new BigDecimal(str));
         else {

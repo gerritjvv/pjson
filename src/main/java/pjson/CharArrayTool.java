@@ -154,8 +154,10 @@ public final class CharArrayTool {
         char val;
         for (i = offset; i < end; i++) {
             val = data[i];
-            if (val < '0' || val > '9')
+
+            if ((val < '0' || val > '9') && val != 'e' && val != 'E' && val != '-') {
                 break;
+            }
         }
         return i;
     }
