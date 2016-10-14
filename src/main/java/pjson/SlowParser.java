@@ -1,5 +1,7 @@
 package pjson;
 
+import java.util.Arrays;
+
 /**
  * Parser to handle cases where we have strings with escaped \[data]
  */
@@ -8,7 +10,7 @@ public class SlowParser {
     /**
      * Return a string result and its index
      */
-    public static class ParseResult{
+    public static class ParseResult {
         final int index;
         final String val;
 
@@ -22,6 +24,7 @@ public class SlowParser {
      * shamelessly stolen from Jettison.
      */
     public static ParseResult parseString(char[] bts, int strStart2, int end) {
+
         StringBuilder buff = new StringBuilder();
         char ch;
 
@@ -32,7 +35,7 @@ public class SlowParser {
 
         outer:
 
-        for(; i < end; i++){
+        for (; i < end; i++) {
             ch = bts[i];
 
             switch (ch) {
@@ -48,6 +51,17 @@ public class SlowParser {
                     ch = bts[i++];
 
                     switch (ch) {
+                        case '\\':
+                            //could be a double escape from json escaping e.g \\u0027 -> \u0027, \\\\ -> \\ but never \\\
+                            char ch2 = bts[i];
+
+                            if (ch2 == 'u') {
+                                //due to the inner double \ we must backtrack one index.
+                                i = _parseUnicodeChar(bts, buff, buff4, i + 1)-1;
+                            } else
+                                buff.append(ch);
+
+                            break;
                         case 'b':
                             buff.append('\b');
                             break;
@@ -65,16 +79,12 @@ public class SlowParser {
                             break;
                         case 'u':
 
-
-                            for(int a = 0; i < (strStart2 + 4); a++, i++)
-                                buff4[a] = (bts[i]);
-
-                                buff.append((char)Integer.parseInt(StringUtil.noCopyStringFromChars(buff4), 16));
+                            i = _parseUnicodeChar(bts, buff, buff4, i);
 
                             break;
-                        case 'x' :
+                        case 'x':
 
-                            for(int a = 0; i < (strStart2 + 2); a++, i++)
+                            for (int a = 0; a < 2; a++, i++)
                                 buff2[a] = bts[i];
 
                             buff.append((char) Integer.parseInt(StringUtil.noCopyStringFromChars(buff2), 16));
@@ -92,6 +102,20 @@ public class SlowParser {
             }
         }
 
-        return new ParseResult(i, buff.toString());
+        return new ParseResult( bts[i] == '"' ? i+1 : i, buff.toString());
+    }
+
+
+    /**
+     * Very ugly helper method that takes the pre-created buff4 and reads unicode data into it, then adds it to the buff,
+     * updates the i index and returns it.
+     */
+    private static int _parseUnicodeChar(char[] bts, StringBuilder buff, char[] buff4, int i) {
+        for (int a = 0; a < 4; a++, i++) {
+            buff4[a] = (bts[i]);
+        }
+        //note: require toChars to handle unicode characters represented by more than one char
+        buff.append(Character.toChars(Integer.parseInt(StringUtil.noCopyStringFromChars(buff4), 16)));
+        return i;
     }
 }
