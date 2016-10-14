@@ -46,6 +46,16 @@
 
 (defn num [msg] (get msg "num"))
 
+(deftest test-scientific-notation-neg
+  (is
+    (= (json/read-str "[-4.626E-4, -4.626E4, -4.626e-4, -4.626e4]")
+       [-4.626E-4, -4.626E4, -4.626e-4, -4.626e4])))
+
+(deftest test-scientific-notation-pos
+  (is
+    (= (json/read-str "[4.626E-4, 4.626E4, 4.626e-4, 4.626e4]")
+       [4.626E-4, 4.626E4, 4.626e-4, 4.626e4])))
+
 (deftest read-number-test
   (dotimes [i 19]
     (let [n (inc i)
