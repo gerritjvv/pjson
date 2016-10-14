@@ -105,6 +105,22 @@ character is detected the parser will drop into a slower parsing implementation 
 The drop into slower parser is only done for those Strings that contain escaped characters thus only paying the performance
 penalty where required.
 
+### Unicode Characters
+
+The full set of character sets as per http://www.w3schools.com/charsets/ is supported
+
+```
+{"basic-latin"              (unicode-seq 0 127)
+   "basic-latin-supplement" (unicode-seq 128 255)
+   "latin-extended-a"       (unicode-seq 256 383)
+   "latin-extended-b"       (unicode-seq 384 591)
+   "modified-letters"       (unicode-seq 688 767)
+   "diacritical-marks"      (unicode-seq 768 879)
+   "greek-and-coptic"       (unicode-seq 880 1023)
+   "cycrillic-basic"        (unicode-seq 1024 1279)
+   "cycrillic-supplement"   (unicode-seq 1280 1327)}
+```
+
 ### Tradeoffs
 
 *   sun.misc.Unsafe must be supported on the JVM you use, if you are not using the Oracle JVM please test first.
