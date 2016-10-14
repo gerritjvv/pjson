@@ -90,7 +90,7 @@ public final class PJSON {
                     }catch(CharArrayTool.SlowParserException slowe){
                         SlowParser.ParseResult result = SlowParser.parseString(bts, strStart2, end);
                         events.string(result.val);
-                        idx = result.index-1;
+                        idx = result.index;
                     }
                     break;
                 case '-': //45

@@ -57,7 +57,7 @@ public class SlowParser {
 
                             if (ch2 == 'u') {
                                 //due to the inner double \ we must backtrack one index.
-                                i = _parseUnicodeChar(bts, buff, buff4, i + 1)-1;
+                                i = _parseUnicodeChar(bts, buff, buff4, i + 1) - 1;
                             } else
                                 buff.append(ch);
 
@@ -102,7 +102,7 @@ public class SlowParser {
             }
         }
 
-        return new ParseResult( bts[i] == '"' ? i+1 : i, buff.toString());
+        return new ParseResult(i, buff.toString());
     }
 
 
