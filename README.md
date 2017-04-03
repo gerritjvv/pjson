@@ -69,8 +69,8 @@ Exceptions are thrown where in a performant way data is deemed invalid, e.g
  (pjson/read-str "{\"abc\": bla}")
  ;; {}
  
- (pjson/read-str "{\"abc\": bla, "\edf\":122}")
- ;; RuntimeException Unsupported character: \edf
+ (pjson/read-str "{\"abc\": bla, \"edf\":122}")
+ ;;{"abc" "edf"}
  
 ```
 
@@ -91,7 +91,7 @@ Data validation should be a separate step after parsing as required and normally
 
 
 (def user (pjson/read-str "{\"abc\": bla}"))
-;;ParserException !!!
+;;{}
 
 ```
 
