@@ -169,7 +169,7 @@ System.out.println(obj);
 
 ```
 
-#Benchmarks 
+# Benchmarks 
 
 To run your own benchmarks use ```lein perforate```.  
 The run takes some time, you might want to comment out the slower ones to speed up the process.  
@@ -273,7 +273,7 @@ This library could not have been written without the wonderful work done on the 
 
 It has shown me how to use Unsafe to create String(s) really fast, and where appropriate I've shamelessly copied.
 
-#Contribute
+# Contribute
 
 Its impossible to create the perfect bug free library. So feel free if you have an improvement, bug fix or idea  
 to open a Git Issue and or send me a Pull Request.
