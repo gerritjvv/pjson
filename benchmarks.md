@@ -1,4 +1,4 @@
-#JSON Parse Practical Example
+# JSON Parse Practical Example
 
 <table border="0">
 <tr><th>Library</th><th>Mean in ms (lower is better) 0.2.7</th><th>0.2.8</th><th>0.3.6</th></tr>
@@ -77,7 +77,7 @@ Found 5 outliers in 60 samples (8.3333 %)
  Variance from outliers : 51.7236 % Variance is severely inflated by outliers
 ```
 
-#JSON Parse Benchmark
+# JSON Parse Benchmark
 
 <table border="0">
 <tr><th>Library</th><th>Mean in ms (lower is better) 0.2.7</th><th>0.2.8</th><th>0.3.6</th></tr>
@@ -157,7 +157,7 @@ Found 5 outliers in 60 samples (8.3333 %)
 
 ```
 
-#JSON Parse Benchmark - parse all fields and substructures
+# JSON Parse Benchmark - parse all fields and substructures
 
 <table border="0">
 <tr><th>Library</th><th>Mean in ms (lower is better) 0.2.7</th><th>0.2.8</th><th>0.3.6</th></tr>
@@ -236,7 +236,7 @@ Found 2 outliers in 60 samples (3.3333 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 ```
 
-#JSON Encode Map
+# JSON Encode Map
 
 This benchmarks aims to test encoding speed from standard clojure/java data structures.  
 The test message is parsed with clj-json which does this without any lazy intermediates.  
@@ -316,7 +316,7 @@ Found 2 outliers in 60 samples (3.3333 %)
  Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 ```
 
-#JSON Encode Simple
+# JSON Encode Simple
 
 This benchmarks reads the message using each API's decode/parse functions and then without edits  
 encodes the message back to json.  
@@ -381,7 +381,7 @@ Evaluation count : 6360 in 60 samples of 106 calls.
 ```
 
 
-#Number parse Benchmark
+# Number parse Benchmark
 
 This benchmark is used to show the difference between the manual string to integer reading in pjson
 and the java Long.valueOf
