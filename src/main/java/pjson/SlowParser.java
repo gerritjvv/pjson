@@ -48,18 +48,20 @@ public class SlowParser {
                     break outer;
                 case '\\':
 
-                    ch = bts[i++];
+                    ch = bts[++i];
+
 
                     switch (ch) {
                         case '\\':
                             //could be a double escape from json escaping e.g \\u0027 -> \u0027, \\\\ -> \\ but never \\\
-                            char ch2 = bts[i];
+                            char ch2 = bts[i++];
 
                             if (ch2 == 'u') {
                                 //due to the inner double \ we must backtrack one index.
-                                i = _parseUnicodeChar(bts, buff, buff4, i + 1) - 1;
-                            } else
+                                i = _parseUnicodeChar(bts, buff, buff4, i) - 1;
+                            } else {
                                 buff.append(ch);
+			    }
 
                             break;
                         case 'b':
