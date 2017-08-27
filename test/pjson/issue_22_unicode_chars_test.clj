@@ -7,7 +7,6 @@
   (:require [pjson.core :as pjson]
             [clojure.test :refer :all]))
 
-
 (defn parse-char
   "expect a number like 0027 or 0000"
   [unicode]

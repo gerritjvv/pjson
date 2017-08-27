@@ -48,20 +48,20 @@ public class SlowParser {
                     break outer;
                 case '\\':
 
-                    ch = bts[i++];
+                    ch = bts[++i];
 
                     switch (ch) {
                         case '\\':
                             //could be a double escape from json escaping e.g \\u0027 -> \u0027, \\\\ -> \\ but never \\\
-                            char ch2 = bts[i];
+                            char ch2 = bts[i++];
 
                             if (ch2 == 'u') {
-                                //due to the inner double \ we must backtrack one index.
-                                i = _parseUnicodeChar(bts, buff, buff4, i + 1) - 1;
-                            } else
+                                i = _parseUnicodeChar(bts, buff, buff4, i+1);
+                            } else {
                                 buff.append(ch);
+			    }
 
-                            break;
+                            break outer;
                         case 'b':
                             buff.append('\b');
                             break;
@@ -78,9 +78,8 @@ public class SlowParser {
                             buff.append('\r');
                             break;
                         case 'u':
-
-                            i = _parseUnicodeChar(bts, buff, buff4, i);
-
+			   //increment i to skip parse the u char
+                            i = _parseUnicodeChar(bts, buff, buff4, i+1);
                             break;
                         case 'x':
 
@@ -90,7 +89,9 @@ public class SlowParser {
                             buff.append((char) Integer.parseInt(StringUtil.noCopyStringFromChars(buff2), 16));
                             break;
                         case '"':
-                            break outer;
+			    //string is escaped here
+			    buff.append(ch);
+			    break;
                         default:
                             buff.append(ch);
                     }
@@ -111,11 +112,15 @@ public class SlowParser {
      * updates the i index and returns it.
      */
     private static int _parseUnicodeChar(char[] bts, StringBuilder buff, char[] buff4, int i) {
+
         for (int a = 0; a < 4; a++, i++) {
             buff4[a] = (bts[i]);
         }
+
         //note: require toChars to handle unicode characters represented by more than one char
         buff.append(Character.toChars(Integer.parseInt(StringUtil.noCopyStringFromChars(buff4), 16)));
-        return i;
+
+	//backtrack one to return the next index after the copy 0027x we should return x but due to loop above is X+1
+        return i-1;
     }
 }
