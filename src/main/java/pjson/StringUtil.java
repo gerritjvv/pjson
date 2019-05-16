@@ -45,11 +45,6 @@ public final class StringUtil {
      * Uses the ISO-8859-1 charset
      */
     public static final Charset DEFAULT_CHAR_SET = Charset.forName("iso-8859-1");
-    private static final byte STR_SPACE = (byte) ' ';
-
-    public static final String toString(final char[] bts, final int start, final int len) {
-        return noCopyStringFromCharsNoCheck(bts, start, len);
-    }
 
 
     public static final String fastToString(final char[] bts, final int start, final int len) {
@@ -139,6 +134,11 @@ public final class StringUtil {
 
     private static StringImplementation computeStringImplementation() {
 
+        if (getVersion() > 8) {
+            // as of java 1.9 String internal representation is byte[]
+            return StringImplementation.UNKNOWN;
+        }
+
         if (STRING_VALUE_FIELD_OFFSET != -1L) {
             if (STRING_OFFSET_FIELD_OFFSET != -1L && STRING_COUNT_FIELD_OFFSET != -1L) {
                 return StringImplementation.OFFSET;
@@ -153,24 +153,10 @@ public final class StringUtil {
             return StringImplementation.UNKNOWN;
         }
     }
-
-    public static boolean hasUnsafe() {
-        return ENABLED;
-    }
-
     public static char[] toCharArray(final String string) {
         if (string == null) return EMPTY_CHARS;
         return STRING_IMPLEMENTATION.toCharArray(string);
 
-    }
-
-    public static char[] toCharArrayNoCheck(final CharSequence charSequence) {
-        return toCharArray(charSequence.toString());
-    }
-
-    public static char[] toCharArray(final CharSequence charSequence) {
-        if (charSequence == null) return EMPTY_CHARS;
-        return toCharArray(charSequence.toString());
     }
 
     public static char[] toCharArrayFromBytes(final byte[] bytes, Charset charset, int start, int len) {
@@ -183,29 +169,19 @@ public final class StringUtil {
     }
 
 
-    public static String noCopyStringFromCharsNoCheck(final char[] chars, int len) {
-        char[] newChars = new char[len];
-        CharArrayTool.copy(chars, 0, newChars, 0, len);
-        return STRING_IMPLEMENTATION.noCopyStringFromChars(newChars);
-    }
-
     public static String noCopyStringFromCharsNoCheck(final char[] chars, int start, int len) {
         char[] newChars = new char[len];
         CharArrayTool.copy(chars, start, newChars, 0, len);
         return STRING_IMPLEMENTATION.noCopyStringFromChars(newChars);
     }
 
-    public static String noCopyStringFromCharsNoCheck(final char[] chars) {
-        return STRING_IMPLEMENTATION.noCopyStringFromChars(chars);
-    }
-
-    public static char[] decode(final byte[] src, final int from, final int len) {
-        final int end = from + len;
-        final char[] dst = new char[len];
-
-        for(int i = from; i < end; i++)
-            dst[i] = (char)(src[i] & 0xff);
-
-        return dst;
+    private static final int getVersion() {
+        String version = System.getProperty("java.version");
+        if(version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if(dot != -1) { version = version.substring(0, dot); }
+        } return Integer.parseInt(version.replaceAll("[^\\d]", "" ));
     }
 }
