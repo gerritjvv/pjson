@@ -1,4 +1,4 @@
-(defproject pjson "0.5.1"
+(defproject pjson "0.5.2"
             :description "Fast clojure json library"
             :url "https://github.com/gerritjvv/pjson"
             :license {:name "Eclipse Public License"
@@ -13,7 +13,7 @@
             :global-vars {*warn-on-reflection* true
                           *assert*             false}
 
-            :javac-options ["-target" "1.9" "-source" "1.9" "-Xlint:-options"]
+            :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
 
             :jvm-opts ["-Xmx1g"
                        "-server"
