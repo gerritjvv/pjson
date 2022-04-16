@@ -1,5 +1,8 @@
 package pjson;
 
+import pjson.key.KeyFn;
+import pjson.key.StringKeyFn;
+
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 
@@ -254,14 +257,30 @@ public final class PJSON {
      * @return Object Map or Collection
      */
     public static final Object defaultLazyParse(final Charset charset, final byte[] bts, final int start, final int len) {
-        final DefaultListener list = new DefaultListener();
+        return defaultLazyParse(charset, bts, start, len, StringKeyFn.INSTANCE);
+    }
+
+    /**
+     * Parse the bts byte array from offset start and to < len.
+     *
+     * @param bts
+     * @param start
+     * @param len
+     * @return Object Map or Collection
+     */
+    public static final Object defaultLazyParse(final Charset charset, final byte[] bts, final int start, final int len, KeyFn<String, ?> keyFn) {
+        final DefaultListener list = new DefaultListener(keyFn);
         //lazyParse(final char[] bts, final int start, final int end, final JSONListener events
         lazyParse(charset, bts, start, len, list);
         return list.getValue();
     }
 
     public static final Object defaultLazyParse(final Charset charset, final char[] bts, final int start, final int len) {
-        final DefaultListener list = new DefaultListener();
+        return defaultLazyParse(charset, bts, start, len, StringKeyFn.INSTANCE);
+    }
+
+    public static final Object defaultLazyParse(final Charset charset, final char[] bts, final int start, final int len, KeyFn<String, ?> keyFn) {
+        final DefaultListener list = new DefaultListener(keyFn);
         //lazyParse(final char[] bts, final int start, final int end, final JSONListener events
         lazyParse(bts, 0, bts.length, list);
         return list.getValue();
@@ -274,7 +293,7 @@ public final class PJSON {
      * @return Object Map or Collection.
      */
     public static final Object defaultLazyParse(final Charset charset, final char[] bts) {
-        return defaultLazyParse(charset, bts, 0, bts.length);
+        return defaultLazyParse(charset, bts, StringKeyFn.INSTANCE);
     }
 
     /**
@@ -283,7 +302,27 @@ public final class PJSON {
      * @param bts
      * @return Object Map or Collection.
      */
-    public static final Object defaultLazyParse(final Charset charset, final byte[] bts) {
-        return defaultLazyParse(charset, bts, 0, bts.length);
+    public static final Object defaultLazyParse(final Charset charset, final char[] bts, KeyFn<String, ?> keyFn) {
+        return defaultLazyParse(charset, bts, 0, bts.length, keyFn);
+    }
+
+    /**
+     * Parse the whole byte array bts.
+     *
+     * @param bts
+     * @return Object Map or Collection.
+     */
+    public static final Object defaultLazyParse(final Charset charset, final byte[] bts){
+        return defaultLazyParse(charset, bts, StringKeyFn.INSTANCE);
+    }
+
+    /**
+     * Parse the whole byte array bts.
+     *
+     * @param bts
+     * @return Object Map or Collection.
+     */
+    public static final Object defaultLazyParse(final Charset charset, final byte[] bts, KeyFn<String, ?> keyFn) {
+        return defaultLazyParse(charset, bts, 0, bts.length, keyFn);
     }
 }

@@ -1,6 +1,8 @@
 package pjson;
 
 import clojure.lang.PersistentArrayMap;
+import pjson.key.KeyFn;
+import pjson.key.StringKeyFn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,16 @@ public abstract class ValueContainer {
         private Object[] objs = new Object[10];
         private Object k = null;
 
+        private final KeyFn keyFn;
+
+        public ObjectContainer() {
+            this(StringKeyFn.INSTANCE);
+        }
+
+        public ObjectContainer(KeyFn keyFn) {
+            this.keyFn = keyFn;
+        }
+
         @Override
         public void clear(){
             arr.clear();
@@ -29,7 +41,7 @@ public abstract class ValueContainer {
         @Override
         public final void append(Object val) {
             if(k != null) {
-                arr.add(k);
+                arr.add(keyFn.convert(k));
                 arr.add(val);
                 k = null;
             }else
@@ -49,6 +61,16 @@ public abstract class ValueContainer {
         private int i = 0;
         private Object k = null;
 
+        private final KeyFn keyFn;
+
+        public AssocObjContainer() {
+            this(StringKeyFn.INSTANCE);
+        }
+
+        public AssocObjContainer(KeyFn keyFn) {
+            this.keyFn = keyFn;
+        }
+
         @Override
         public void clear(){
         }
@@ -63,7 +85,7 @@ public abstract class ValueContainer {
                     arr = newArr;
                 }
 
-                arr[i++] = k;
+                arr[i++] = keyFn.convert(k);
                 arr[i++] = val;
                 k = null;
             }else {

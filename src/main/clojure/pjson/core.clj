@@ -1,11 +1,15 @@
 (ns pjson.core
-  (:import [pjson PJSON StringUtil JSONAssociative ToJSONString JSONGenerator]
-           (java.nio.charset Charset)
-           (java.util Map Collection)
-           (clojure.lang Seqable IPersistentMap))
+    (:import [pjson PJSON StringUtil JSONAssociative ToJSONString JSONGenerator]
+      (java.nio.charset Charset)
+      (java.util Map Collection)
+      (clojure.lang Seqable IPersistentMap IFn)
+      (pjson.key StringKeyFn KeyFn ClojureFn))
   (:gen-class))
 
 (defonce ^Charset DEFAULT_CHARSET (StringUtil/DEFAULT_CHAR_SET))
+
+
+(def ^:dynamic *key-fn* "Key function that is used to transform map keys, called using (*key-fn* kw-str)" StringKeyFn/INSTANCE)
 
 (defprotocol JSONToString
   "Convert an ordinary java/clojure object to a JSON compcatible String"
@@ -29,9 +33,9 @@
   ([^"[B" bts]
    (bts->lazy-json DEFAULT_CHARSET bts))
   ([^Charset charset ^"[B" bts]
-   (PJSON/defaultLazyParse charset bts))
+   (PJSON/defaultLazyParse charset bts  ^KeyFn (ClojureFn/create *key-fn*)))
   ([^Charset charset ^"[B" bts ^Long from ^Long len]
-   (PJSON/defaultLazyParse charset bts (int from) (int len))))
+   (PJSON/defaultLazyParse charset bts (int from) (int len)  ^KeyFn (ClojureFn/create *key-fn*))))
 
 
 (extend-protocol JSONParser
@@ -45,11 +49,11 @@
   (Class/forName "[C")
   (read-str
     ([^"[C" obj]
-     (PJSON/defaultLazyParse DEFAULT_CHARSET ^"[C" obj))
+     (PJSON/defaultLazyParse DEFAULT_CHARSET ^"[C" obj ^KeyFn (ClojureFn/create *key-fn*)))
     ([^"[C" obj charset]
-     (PJSON/defaultLazyParse ^Charset charset ^"[C" obj))
+     (PJSON/defaultLazyParse ^Charset charset ^"[C" obj  ^KeyFn *key-fn*))
     ([^"[C" obj charset ^Long from ^Long len]
-     (PJSON/defaultLazyParse ^Charset charset ^"[C" obj (int from) (int len)))))
+     (PJSON/defaultLazyParse ^Charset charset ^"[C" obj (int from) (int len)  ^KeyFn (ClojureFn/create *key-fn*)))))
 
 (extend-protocol JSONParser
   (Class/forName "[B")
