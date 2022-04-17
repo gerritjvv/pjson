@@ -24,16 +24,16 @@
          (dotimes [i iter]
                   (clj-json/generate-string msg)))
 
-(defcase json-parse-encode-map :boon
-         [msg]
-         (dotimes [i iter]
-                  (JsonFactory/toJson msg)))
+;(defcase json-parse-encode-map :boon
+;         [msg]
+;         (dotimes [i iter]
+;                  (JsonFactory/toJson msg)))
 
-
-(defcase json-parse-encode-map :data.json
-         [msg]
-         (dotimes [i iter]
-                  (data-json/write-str msg)))
+;
+;(defcase json-parse-encode-map :data.json
+;         [msg]
+;         (dotimes [i iter]
+;                  (data-json/write-str msg)))
 
 
 

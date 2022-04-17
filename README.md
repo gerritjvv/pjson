@@ -18,6 +18,11 @@ All data returned are clojure persistent data structures that can be used with a
 (require '[pjson.core :refer [read-str write-str get-charset]])
 
 (def m (read-str "{\"a\": 1}"))
+
+(binding [pjson.core/*key-fn* keyword]
+  (read-str "{\"a\":1}"))
+
+
 ;;converts a String to a JSON object {} converts to Maps and [] converts to Vectors
 (type m)
 ;;pjson.JSONAssociative
@@ -39,6 +44,12 @@ All data returned are clojure persistent data structures that can be used with a
 ;; read-str with different charsets
 (read-str "{\"a\": 1}" (get-charset "UTF-8"))
 ;;{"a" 1}
+
+;; read-str with keys as keywords
+(binding [pjson.core/*key-fn* keyword]
+  (read-str "{\"a\": 1}" (get-charset "UTF-8")))
+;;{a: 1}
+
 ;; read-str with different default charset at a different offset
 (def s "myprop={\"a\": 1}")
 (read-str s (get-charset "UTF-8") 8 (count s))
