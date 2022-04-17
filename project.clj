@@ -1,4 +1,4 @@
-(defproject pjson "0.5.2"
+(defproject pjson "1.0.0-rc"
             :description "Fast clojure json library"
             :url "https://github.com/gerritjvv/pjson"
             :license {:name "Eclipse Public License"
