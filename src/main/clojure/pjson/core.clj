@@ -44,6 +44,16 @@
    (PJSON/defaultLazyParse charset bts (int from) (int len)  ^KeyFn (-create-key-fn *key-fn*))))
 
 
+(defn read-str-keys
+  "Same as read-str but sets *key-fn* to keyword, all map keys will be converted to keywords"
+  ([obj] (binding [*key-fn* keyword]
+                  (read-str obj)))
+  ([obj charset] (binding [*key-fn* keyword]
+                          (read-str obj charset)))
+  ([obj charset from len] (binding [*key-fn* keyword]
+                                   (read-str obj charset from len))))
+
+
 (extend-protocol JSONParser
   String
   (read-str

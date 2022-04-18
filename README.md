@@ -18,9 +18,14 @@ All data returned are clojure persistent data structures that can be used with a
 (require '[pjson.core :refer [read-str write-str get-charset]])
 
 (def m (read-str "{\"a\": 1}"))
+;; {"a": 1}
 
 (binding [pjson.core/*key-fn* keyword]
   (read-str "{\"a\":1}"))
+;; {a: 1}
+
+(read-str-keys "{\"a\":1}")
+;; {:a 1}
 
 
 ;;converts a String to a JSON object {} converts to Maps and [] converts to Vectors
