@@ -3,10 +3,8 @@ package pjson;
 import pjson.key.KeyFn;
 import pjson.key.StringKeyFn;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 /**
  * Fast simple json parser.<br/>
