@@ -14,18 +14,19 @@
 
 (defcase json-parse-all :pjson
          [^"[B" bts _]
-         (dotimes [i iter]
-                  (pr-str (asObj bts))))
+         (binding [pjson.core/*key-fn* keyword]
+                  (dotimes [i iter]
+                           (pr-str (asObj bts)))))
 
-(defcase json-parse-all :boon
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (pr-str (JsonFactory/fromJson msg))))
+;(defcase json-parse-all :boon
+;         [_ ^String msg]
+;         (dotimes [i iter]
+;                  (pr-str (JsonFactory/fromJson msg))))
 
-(defcase json-parse-all :data.json
-         [_ ^String msg]
-         (dotimes [i iter]
-                  (pr-str (data-json/read-str msg))))
+;(defcase json-parse-all :data.json
+;         [_ ^String msg]
+;         (dotimes [i iter]
+;                  (pr-str (data-json/read-str msg))))
 
 (defcase json-parse-all :clj-json
          [_ ^String msg]

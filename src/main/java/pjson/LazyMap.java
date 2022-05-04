@@ -1,6 +1,8 @@
 package pjson;
 
 import clojure.lang.*;
+import pjson.key.KeyFn;
+import pjson.key.StringKeyFn;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,13 +16,19 @@ public class LazyMap extends APersistentMap implements ToJSONString {
     final char[] json;
     final int from, len;
     final AtomicBoolean realized = new AtomicBoolean(false);
+    final KeyFn keyFn;
 
     APersistentMap map;
 
-    public LazyMap(char[] json, int from, int len){
+    public LazyMap(char[] json, int from, int len) {
+        this(json, from, len, StringKeyFn.INSTANCE);
+    }
+
+    public LazyMap(char[] json, int from, int len, KeyFn keyFn){
         this.json = json;
         this.from = from;
         this.len = len;
+        this.keyFn = keyFn;
     }
 
     public final int jsonFrom(){
@@ -33,7 +41,7 @@ public class LazyMap extends APersistentMap implements ToJSONString {
 
     private final void realize(){
         if(!realized.getAndSet(true)){
-            DefaultListener listener = new DefaultListener();
+            DefaultListener listener = new DefaultListener(keyFn);
 
             PJSON.lazyParse(json, from, from+len, listener);
             APersistentMap map = (APersistentMap)listener.getValue();

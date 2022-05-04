@@ -57,3 +57,35 @@
   (is (equal-after-decode (doto (LinkedList.) (.add 1.2) (.add 2.3)) [1.2 2.3])) ;test Collection/Iterable
   (is (equal-after-decode (doto (TreeSet.) (.add 1.2) (.add 2.3)) [1.2 2.3])) ;test Collection/Iterable
   )
+
+
+(deftest read-str-keys-1-test
+         (let [data {:a 1 :b {:c [1 2 3]}}]
+              (is (= (read-str-keys (write-str data)) data))))
+
+(deftest read-str-keys-2-test
+         (let [data {:a 1 :b {:c [1 2 3]}}]
+              (is (= (read-str-keys (write-str data) DEFAULT_CHARSET) data))))
+
+
+(deftest read-str-keys-2-test
+         (let [data {:a 1 :b {:c [1 2 3]}}
+               json-str (write-str data)]
+              (is (= (read-str-keys json-str DEFAULT_CHARSET 0 (count json-str)) data))))
+
+(deftest read-str-dyanmic-keys-1-test
+         (binding [*key-fn* keyword]
+                  (let [data {:a 1 :b {:c [1 2 3]}}]
+                       (is (= (read-str (write-str data)) data)))))
+
+
+(deftest read-str-dyanmic-keys-2-test
+         (binding [*key-fn* keyword]
+                  (let [data {:a 1 :b {:c [1 2 3]}}]
+                       (is (= (read-str (write-str data) DEFAULT_CHARSET) data)))))
+
+(deftest read-str-dyanmic-keys-3-test
+         (binding [*key-fn* keyword]
+                  (let [data {:a 1 :b {:c [1 2 3]}}
+                        json-str (write-str data)]
+                       (is (= (read-str json-str DEFAULT_CHARSET 0 (count json-str)) data)))))

@@ -1,4 +1,4 @@
-(defproject pjson "0.5.2"
+(defproject pjson "1.0.0-SNAPSHOT"
             :description "Fast clojure json library"
             :url "https://github.com/gerritjvv/pjson"
             :license {:name "Eclipse Public License"
@@ -29,11 +29,11 @@
             :dependencies [
 			   [riddley "0.2.0"]
 			   [proteus "0.1.6"]
-                           [criterium "0.4.5"]
-                           [org.clojure/clojure "1.10.0"]
+                           [criterium "0.4.6"]
+                           [org.clojure/clojure "1.11.1"]
                            [io.fastjson/boon "0.18" :scope "provided"]
                            [org.clojure/data.json "0.2.6" :scope "provided"]
                            [clj-json "0.5.3" :scope "provided"]
-                           [cheshire "5.8.1" :scope "provided"]]
+                           [cheshire "5.10.2" :scope "provided"]]
 
             :perforate {:benchmark-paths ["src/main/bench/"]})

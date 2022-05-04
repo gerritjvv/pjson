@@ -1,5 +1,8 @@
 package pjson;
 
+import pjson.key.KeyFn;
+import pjson.key.StringKeyFn;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -13,6 +16,15 @@ public final class DefaultListener extends JSONListener{
     private int stackPointer = 0;
 
     private ValueContainer current;
+    private final KeyFn<String, ?> keyFn;
+
+    public DefaultListener() {
+        this(StringKeyFn.INSTANCE);
+    }
+
+    public DefaultListener(KeyFn<String, ?> keyFn) {
+        this.keyFn = keyFn;
+    }
 
     @Override
     public final void string(String val) {
@@ -52,7 +64,7 @@ public final class DefaultListener extends JSONListener{
        if(current != null)
            push(current);
 
-       current = new ValueContainer.AssocObjContainer();
+       current = new ValueContainer.AssocObjContainer(keyFn);
     }
 
     @Override
@@ -75,7 +87,7 @@ public final class DefaultListener extends JSONListener{
 
     @Override
     public void lazyObject(char[] json, int from, int end) {
-        LazyMap map = new LazyMap(json, from, end - from);
+        LazyMap map = new LazyMap(json, from, end - from, keyFn);
 
         if(current != null)
             current.append(map);

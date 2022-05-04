@@ -31,13 +31,24 @@
 
 (defcase json-parse-practical :pjson
          [^"[B" bts _]
-         (dotimes [i iter]
-                  (-> bts read-str do-work write-str)))
+         (binding [pjson.core/*key-fn* keyword]
+                 (dotimes [i iter]
+                          (-> bts read-str do-work write-str))))
 
-(defcase json-parse-practical :boon
+(defcase json-parse-practical :clj-json
          [_ ^String msg]
          (dotimes [i iter]
-                  (->> msg JsonFactory/fromJson (into {}) do-work JsonFactory/toJson)))
+                  (-> msg clj-json/parse-string do-work clj-json/generate-string)))
+
+
+(defcase json-parse-practical :cheshire
+         [_ ^String msg]
+         (dotimes [i iter]
+                  (-> msg cheshire/parse-string do-work cheshire/generate-string)))
+;(defcase json-parse-practical :boon
+;         [_ ^String msg]
+;         (dotimes [i iter]
+;                  (->> msg JsonFactory/fromJson (into {}) do-work JsonFactory/toJson)))
 
 (comment
 
@@ -46,14 +57,5 @@
            (dotimes [i iter]
                     (-> msg data-json/read-str do-work data-json/write-str)))
 
-  (defcase json-parse-practical :clj-json
-           [_ ^String msg]
-           (dotimes [i iter]
-                    (-> msg clj-json/parse-string do-work clj-json/generate-string)))
 
-
-  (defcase json-parse-practical :cheshire
-           [_ ^String msg]
-           (dotimes [i iter]
-                    (-> msg cheshire/parse-string do-work cheshire/generate-string)))
   )

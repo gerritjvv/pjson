@@ -13,14 +13,27 @@
 
 (defcase json-parse :pjson
          [^"[B" bts _]
-         (dotimes [i iter]
-                  (read-str bts)))
+         (binding [pjson.core/*key-fn* keyword]
+                  (dotimes [i iter]
+                           (read-str bts))))
+
+;
+;(defcase json-parse :boon
+;         [_ ^String msg]
+;         (dotimes [i iter]
+;                  (JsonFactory/fromJson msg)))
 
 
-(defcase json-parse :boon
+(defcase json-parse :clj-json
          [_ ^String msg]
          (dotimes [i iter]
-                  (JsonFactory/fromJson msg)))
+                  (clj-json/parse-string msg)))
+
+
+(defcase json-parse :cheshire
+         [_ ^String msg]
+         (dotimes [i iter]
+                  (cheshire/parse-string msg)))
 
 (comment
 
@@ -28,14 +41,4 @@
            [_ ^String msg]
            (dotimes [i iter]
                     (data-json/read-str msg)))
-
-  (defcase json-parse :clj-json
-           [_ ^String msg]
-           (dotimes [i iter]
-                    (clj-json/parse-string msg)))
-
-
-  (defcase json-parse :cheshire
-           [_ ^String msg]
-           (dotimes [i iter]
-                    (cheshire/parse-string msg))) )
+ )
