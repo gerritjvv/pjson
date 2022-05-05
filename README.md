@@ -4,7 +4,7 @@ Fast clojure json parser
 
 The parser's focus is on speed and not validating json.
 
-[![Build Status](https://travis-ci.org/gerritjvv/pjson.svg)](https://travis-ci.org/gerritjvv/pjson)
+[![Clojure CI](https://github.com/gerritjvv/pjson/actions/workflows/clojure.yml/badge.svg)](https://github.com/gerritjvv/pjson/actions/workflows/clojure.yml)
 
 [![Clojars Project](http://clojars.org/pjson/latest-version.svg)](http://clojars.org/pjson)
 
