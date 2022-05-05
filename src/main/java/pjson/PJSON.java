@@ -83,6 +83,10 @@ public final class PJSON {
                             int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
                             parseDouble(bts, idx, idx2, events);
                             idx = idx2 - 1;
+                        } else if (CharArrayTool.contains(bts, idx, endIndex, 'e', 'E')) {
+                            idx--;
+                            parseBigDecimal(bts, idx, endIndex, events);
+                            idx = endIndex - 1;
                         } else {
                             parseInt(bts, idx, endIndex, events, true);
                             idx = endIndex - 1;
@@ -134,12 +138,16 @@ public final class PJSON {
                 case 55:
                 case 56:
                 case 57:
+
                     endIndex = CharArrayTool.indexFirstNonNumeric(bts, idx, end);
 
                     if (bts[endIndex] == '.') {
                         int idx2 = CharArrayTool.indexFirstNonNumeric(bts, endIndex + 1, end);
                         parseDouble(bts, idx, idx2, events);
                         idx = idx2 - 1;
+                    } else if (CharArrayTool.contains(bts, idx, endIndex, 'e', 'E')) {
+                        parseBigDecimal(bts, idx, endIndex, events);
+                        idx = endIndex - 1;
                     } else {
                         parseInt(bts, idx, endIndex, events, false);
                         idx = endIndex - 1;
@@ -232,18 +240,27 @@ public final class PJSON {
         events.number(new Long(isNeg ? l * -1 : l));
     }
 
-    private static final void parseDouble(char[] bts, int offset, int end, JSONListener events) {
+    private static final void parseBigDecimal(char[] bts, int offset, int end, JSONListener events) {
         final String str = StringUtil.fastToString(bts, offset, end - offset);
+        events.bigDecimal(new BigDecimal(str));
+    }
 
+    private static final void parseDouble(char[] bts, int offset, int end, JSONListener events) {
         int len = end - offset;
 
-        if (len > 22)
+        final String str = StringUtil.fastToString(bts, offset, len);
+
+        if (len > 22 || CharArrayTool.contains(bts, offset, end+1, 'e', 'E'))
             events.bigDecimal(new BigDecimal(str));
         else {
             try {
                 events.number(Double.valueOf(str));
             } catch (NumberFormatException e) {
-                events.bigDecimal(new BigDecimal(str));
+                try {
+                    events.bigDecimal(new BigDecimal(str));
+                } catch (ArrayIndexOutOfBoundsException bde) {
+                    throw new RuntimeException("Error trying to parse " + str, bde);
+                }
             }
         }
     }
@@ -312,7 +329,7 @@ public final class PJSON {
      * @param bts
      * @return Object Map or Collection.
      */
-    public static final Object defaultLazyParse(final Charset charset, final byte[] bts){
+    public static final Object defaultLazyParse(final Charset charset, final byte[] bts) {
         return defaultLazyParse(charset, bts, StringKeyFn.INSTANCE);
     }
 

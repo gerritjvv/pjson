@@ -116,7 +116,6 @@ public final class CharArrayTool {
     public static final int indexOfEndOfList(char[] data, int offset, int end) {
         int i;
         int level = 0;
-        boolean inString = false;
 
         for (i = offset; i < end; i++) {
             //over 2 condition checks switch on primitives is faster than if elseif else
@@ -155,12 +154,27 @@ public final class CharArrayTool {
         for (i = offset; i < end; i++) {
             val = data[i];
 
-            if ((val < '0' || val > '9') && val != 'e' && val != 'E' && val != '-') {
+            if ((val < '0' || val > '9') && val != 'e' && val != 'E' && val != '-' && val != '+' && val != 'M' && val != 'm') {
                 break;
             }
         }
         return i;
     }
+
+
+    /**
+     * Searches for v1 or v2 in reverse order starting at index (end-1) and ending at index offset
+     */
+    public static final boolean contains(char[] data, int offset, int end, char v1, char v2) {
+
+        for(int i = end-1; i >= offset; i--){
+            char dataValue = data[i];
+            if(dataValue == v1 || dataValue == v2)
+                return true;
+        }
+        return false;
+    }
+
 
     public static final char getChar(char[] data, int offset) {
 
