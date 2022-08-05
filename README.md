@@ -115,7 +115,7 @@ So my point of view is ```invalid-document -> exception == invalid-document -> v
 
 ### Escaped Characters
 
-As for version ```0.3.6``` escaped characters are supported and correctly read, if a String with an escape
+As for version ```0.3.6``` escaped characters are supported and correctly read, if a [String](https://www.scaler.com/topics/java/string-in-java/) with an escape
 character is detected the parser will drop into a slower parsing implementation that will read all escapes correctly.
 
 The drop into slower parser is only done for those Strings that contain escaped characters thus only paying the performance
